@@ -154,7 +154,7 @@ function Edit() {
                 value=""
                 onChange={(e) => {
                   const src = Number(e.target.value);
-                  updDay(i, () => draft.days[src].map((l) => ({ ...l, id: newId() })));
+                  updDay(i, () => (draft.days[src] ?? []).map((l) => ({ ...l, id: newId() })));
                 }}
                 className="rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground outline-none"
               >
