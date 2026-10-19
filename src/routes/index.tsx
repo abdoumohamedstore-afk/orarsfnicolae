@@ -107,7 +107,7 @@ function Today() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               {status.isTomorrow ? t.tomorrow : t.days[status.dayIndex]}
             </p>
-            <h2 className="mt-1 text-3xl font-bold tracking-tight">{t.startsAt(status.lessons[0].time)}</h2>
+            <h2 className="mt-1 text-3xl font-bold tracking-tight">{t.startsAt(status.lessons[0]?.time ?? "")}</h2>
             <ul className="mt-4 space-y-2">
               {status.lessons.map((l) => (
                 <li key={l.id} className="flex items-center gap-3 text-sm">

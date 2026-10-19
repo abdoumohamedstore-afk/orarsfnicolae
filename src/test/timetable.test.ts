@@ -7,7 +7,7 @@ const tt = exampleTimetable();
 
 describe("timetable rules", () => {
   it("new lesson time = previous + lesson + break", () => {
-    expect(nextLessonTime(tt.days[0], 50, 10)).toBe("17:00");
+    expect(nextLessonTime(tt.days[0]!, 50, 10)).toBe("17:00");
   });
   it("same subject always same color", () => {
     expect(subjectColorIndex("Matematică")).toBe(subjectColorIndex("matematică "));

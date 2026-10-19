@@ -37,7 +37,7 @@ export function emptyTimetable(): Timetable {
 
 export function nextLessonTime(day: Lesson[], lessonLen: number, breakLen: number) {
   if (day.length === 0) return "08:00";
-  return fromMin(toMin(day[day.length - 1].time) + lessonLen + breakLen);
+  return fromMin(toMin(day[day.length - 1]!.time) + lessonLen + breakLen);
 }
 
 function buildDay(start: string, subjects: string[], len: number, brk: number): Lesson[] {
@@ -71,7 +71,7 @@ export const dayIndexOf = (d: Date) => {
   return g >= 1 && g <= 5 ? g - 1 : -1;
 };
 
-export const sortByTime = (day: Lesson[]) =>
+export const sortByTime = (day: Lesson[] = []) =>
   day.filter((l) => l.subject.trim()).slice().sort((a, b) => toMin(a.time) - toMin(b.time));
 
 export type Status =
@@ -85,10 +85,10 @@ export function getStatus(tt: Timetable, now: Date): Status {
   const di = dayIndexOf(now);
   const nowMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
   if (di >= 0) {
-    const day = sortByTime(tt.days[di]);
+    const day = sortByTime(tt.days[di]) as Lesson[] & { [k: number]: Lesson };
     if (day.length) {
-      if (nowMin < toMin(day[0].time))
-        return { kind: "before", first: day[0], minsUntil: Math.ceil(toMin(day[0].time) - nowMin) };
+      if (nowMin < toMin(day[0]!.time))
+        return { kind: "before", first: day[0]!, minsUntil: Math.ceil(toMin(day[0]!.time) - nowMin) };
       for (let i = 0; i < day.length; i++) {
         const start = toMin(day[i].time);
         const end = start + tt.lessonLen;
