@@ -48,6 +48,7 @@ const en = {
   reminder: "starts in 5 minutes",
   days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   daysShort: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+  swipeHint: "Swipe for the rest of the week",
 };
 
 const ro: typeof en = {
@@ -98,6 +99,7 @@ const ro: typeof en = {
   reminder: "începe în 5 minute",
   days: ["Luni", "Marți", "Miercuri", "Joi", "Vineri"],
   daysShort: ["Lun", "Mar", "Mie", "Joi", "Vin"],
+  swipeHint: "Glisează pentru restul săptămânii",
 };
 
 export const dict = { en, ro };

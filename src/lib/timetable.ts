@@ -85,24 +85,27 @@ export function getStatus(tt: Timetable, now: Date): Status {
   const di = dayIndexOf(now);
   const nowMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
   if (di >= 0) {
-    const day = sortByTime(tt.days[di]) as Lesson[] & { [k: number]: Lesson };
-    if (day.length) {
-      if (nowMin < toMin(day[0]!.time))
-        return { kind: "before", first: day[0]!, minsUntil: Math.ceil(toMin(day[0]!.time) - nowMin) };
+    const day = sortByTime(tt.days[di]);
+    const first = day[0];
+    if (first) {
+      if (nowMin < toMin(first.time))
+        return { kind: "before", first, minsUntil: Math.ceil(toMin(first.time) - nowMin) };
       for (let i = 0; i < day.length; i++) {
-        const start = toMin(day[i].time);
+        const cur = day[i];
+        if (!cur) continue;
+        const start = toMin(cur.time);
         const end = start + tt.lessonLen;
+        const nxt = day[i + 1];
         if (nowMin >= start && nowMin < end)
           return {
             kind: "lesson",
-            lesson: day[i],
-            next: day[i + 1],
+            lesson: cur,
+            ...(nxt ? { next: nxt } : {}),
             minsLeft: Math.ceil(end - nowMin),
             progress: (nowMin - start) / tt.lessonLen,
           };
-        const next = day[i + 1];
-        if (next && nowMin >= end && nowMin < toMin(next.time))
-          return { kind: "break", next, minsUntil: Math.ceil(toMin(next.time) - nowMin) };
+        if (nxt && nowMin >= end && nowMin < toMin(nxt.time))
+          return { kind: "break", next: nxt, minsUntil: Math.ceil(toMin(nxt.time) - nowMin) };
       }
     }
   }

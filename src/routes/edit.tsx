@@ -69,11 +69,20 @@ function Row({ lesson, onChange, onRemove, label }: { lesson: Lesson; onChange: 
   );
 }
 
+const PRISTINE = JSON.stringify(emptyTimetable());
+
+/** Merge stored data into the draft, but never over what the user already typed. */
+export function applyStored(cur: Timetable, data: Timetable | null): Timetable {
+  if (JSON.stringify(cur) !== PRISTINE) return cur;
+  return data ? structuredClone(data) : emptyTimetable();
+}
+
 function Edit() {
   const { t, data, setData, ready } = useApp();
   const [draft, setDraft] = useState<Timetable>(emptyTimetable);
   useEffect(() => {
-    if (ready) setDraft(data ? structuredClone(data) : emptyTimetable());
+    if (!ready) return;
+    setDraft((cur) => applyStored(cur, data));
   }, [ready, data]);
 
   const sensors = useSensors(
@@ -107,6 +116,14 @@ function Edit() {
     });
     toast.success(t.saved);
   };
+
+  // Only show the form once the stored timetable is in, so nothing typed is lost.
+  if (!ready)
+    return (
+      <Page>
+        <PageHeader title={t.edit} />
+      </Page>
+    );
 
   return (
     <Page>
