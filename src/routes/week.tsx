@@ -40,7 +40,7 @@ function Week() {
             return (
               <div
                 key={i}
-                className={`w-[132px] shrink-0 snap-start rounded-2xl border-2 p-1.5 ${
+                className={`w-[calc((100%-12px)/3)] shrink-0 snap-start rounded-2xl border-2 p-1.5 ${
                   isToday ? "border-primary bg-accent" : "border-transparent"
                 }`}
               >
@@ -65,6 +65,7 @@ function Week() {
             );
           })}
         </div>
+        <p className="px-1 pt-1.5 text-center text-[10px] text-muted-foreground">{t.swipeHint}</p>
       </div>
     </Page>
   );
