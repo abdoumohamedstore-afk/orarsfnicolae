@@ -95,17 +95,17 @@ export function getStatus(tt: Timetable, now: Date): Status {
         if (!cur) continue;
         const start = toMin(cur.time);
         const end = start + tt.lessonLen;
+        const nxt = day[i + 1];
         if (nowMin >= start && nowMin < end)
           return {
             kind: "lesson",
             lesson: cur,
-            next: day[i + 1],
+            ...(nxt ? { next: nxt } : {}),
             minsLeft: Math.ceil(end - nowMin),
             progress: (nowMin - start) / tt.lessonLen,
           };
-        const next = day[i + 1];
-        if (next && nowMin >= end && nowMin < toMin(next.time))
-          return { kind: "break", next, minsUntil: Math.ceil(toMin(next.time) - nowMin) };
+        if (nxt && nowMin >= end && nowMin < toMin(nxt.time))
+          return { kind: "break", next: nxt, minsUntil: Math.ceil(toMin(nxt.time) - nowMin) };
       }
     }
   }
