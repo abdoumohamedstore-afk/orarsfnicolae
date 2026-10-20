@@ -12,7 +12,7 @@ import {
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Dot, Page, PageHeader } from "@/components/app-ui";
 import { useApp } from "@/lib/store";
@@ -69,16 +69,17 @@ function Row({ lesson, onChange, onRemove, label }: { lesson: Lesson; onChange: 
   );
 }
 
+const PRISTINE = JSON.stringify(emptyTimetable());
+
 function Edit() {
   const { t, data, setData, ready } = useApp();
   const [draft, setDraft] = useState<Timetable>(emptyTimetable);
-  // Sync the stored timetable into the draft once per visit, so a late
-  // hydration can never wipe what the user has already typed.
-  const synced = useRef(false);
+  // Apply the stored timetable only while the draft is still untouched, so a
+  // late load can never wipe what the user has already typed.
   useEffect(() => {
-    if (!ready || synced.current) return;
-    synced.current = true;
-    setDraft(data ? structuredClone(data) : emptyTimetable());
+    if (!ready) return;
+    const next = data ? structuredClone(data) : emptyTimetable();
+    setDraft((cur) => (JSON.stringify(cur) === PRISTINE ? next : cur));
   }, [ready, data]);
 
   const sensors = useSensors(
