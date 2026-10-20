@@ -40,7 +40,7 @@ function Week() {
             return (
               <div
                 key={i}
-                className={`w-[calc((100%-12px)/3)] shrink-0 snap-start rounded-2xl border-2 p-1.5 ${
+                className={`w-[calc((100%-6px)/2)] shrink-0 snap-start rounded-2xl border-2 p-1.5 ${
                   isToday ? "border-primary bg-accent" : "border-transparent"
                 }`}
               >
