@@ -71,15 +71,18 @@ function Row({ lesson, onChange, onRemove, label }: { lesson: Lesson; onChange: 
 
 const PRISTINE = JSON.stringify(emptyTimetable());
 
+/** Merge stored data into the draft, but never over what the user already typed. */
+export function applyStored(cur: Timetable, data: Timetable | null): Timetable {
+  if (JSON.stringify(cur) !== PRISTINE) return cur;
+  return data ? structuredClone(data) : emptyTimetable();
+}
+
 function Edit() {
   const { t, data, setData, ready } = useApp();
   const [draft, setDraft] = useState<Timetable>(emptyTimetable);
-  // Apply the stored timetable only while the draft is still untouched, so a
-  // late load can never wipe what the user has already typed.
   useEffect(() => {
     if (!ready) return;
-    const next = data ? structuredClone(data) : emptyTimetable();
-    setDraft((cur) => (JSON.stringify(cur) === PRISTINE ? next : cur));
+    setDraft((cur) => applyStored(cur, data));
   }, [ready, data]);
 
   const sensors = useSensors(
