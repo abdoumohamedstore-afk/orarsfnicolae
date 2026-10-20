@@ -114,6 +114,14 @@ function Edit() {
     toast.success(t.saved);
   };
 
+  // Only show the form once the stored timetable is in, so nothing typed is lost.
+  if (!ready)
+    return (
+      <Page>
+        <PageHeader title={t.edit} />
+      </Page>
+    );
+
   return (
     <Page>
       <PageHeader title={t.edit} />
