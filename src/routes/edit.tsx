@@ -12,7 +12,7 @@ import {
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Dot, Page, PageHeader } from "@/components/app-ui";
 import { useApp } from "@/lib/store";
@@ -72,8 +72,13 @@ function Row({ lesson, onChange, onRemove, label }: { lesson: Lesson; onChange: 
 function Edit() {
   const { t, data, setData, ready } = useApp();
   const [draft, setDraft] = useState<Timetable>(emptyTimetable);
+  // Sync the stored timetable into the draft once per visit, so a late
+  // hydration can never wipe what the user has already typed.
+  const synced = useRef(false);
   useEffect(() => {
-    if (ready) setDraft(data ? structuredClone(data) : emptyTimetable());
+    if (!ready || synced.current) return;
+    synced.current = true;
+    setDraft(data ? structuredClone(data) : emptyTimetable());
   }, [ready, data]);
 
   const sensors = useSensors(
