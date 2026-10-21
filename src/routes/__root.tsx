@@ -15,17 +15,20 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppProvider } from "@/lib/store";
 import { InstallHint, TabBar } from "@/components/app-ui";
-import { setupServiceWorker } from "@/lib/pwa";
+import { AppStatus } from "@/components/app-status";
+import { Button } from "@/components/ui/button";
+import { useApp } from "@/lib/store";
 
 function NotFoundComponent() {
+  const { lang } = useApp();
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{lang === "ro" ? "Pagina nu a fost găsită" : "Page not found"}</h2>
         <div className="mt-6">
           <Link to="/" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground">
-            Go home
+            {lang === "ro" ? "Acasă" : "Go home"}
           </Link>
         </div>
       </div>
@@ -43,17 +46,17 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">Pagina nu s-a încărcat / This page didn't load</h1>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+          <Button
             onClick={() => {
               router.invalidate();
               reset();
             }}
             className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
           >
-            Try again
-          </button>
+            Reîncearcă / Try again
+          </Button>
         </div>
       </div>
     </div>
@@ -106,13 +109,11 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => {
-    void setupServiceWorker();
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
+        <AppStatus />
         <Outlet />
         <TabBar />
         <InstallHint />

@@ -1,3 +1,4 @@
+import { nextSchoolDay, schoolDayIndex, isSchoolDay } from "./schedule-days";
 import { sortByTime, toMin, type Timetable } from "./timetable";
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -29,9 +30,9 @@ export function buildIcs(tt: Timetable, reminderText: string, from = new Date())
   ];
   const stamp = `${from.getUTCFullYear()}${pad(from.getUTCMonth() + 1)}${pad(from.getUTCDate())}T000000Z`;
   tt.days.forEach((day, di) => {
-    const d = new Date(from);
-    const delta = (di + 1 - d.getDay() + 7) % 7;
-    d.setDate(d.getDate() + delta);
+    let d = new Date(from);
+    if (!isSchoolDay(d)) d = nextSchoolDay(d);
+    while (schoolDayIndex(d) !== di) d = nextSchoolDay(d);
     const date = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
     sortByTime(day).forEach((l, i) => {
       const s = toMin(l.time);
@@ -56,7 +57,7 @@ export function buildIcs(tt: Timetable, reminderText: string, from = new Date())
     });
   });
   lines.push("END:VCALENDAR");
-  return lines.join("\r\n");
+  return lines.join("\r\n") + "\r\n";
 }
 
 export function download(name: string, content: string, type: string) {
