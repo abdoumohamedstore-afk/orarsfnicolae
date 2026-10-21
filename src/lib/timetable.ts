@@ -1,3 +1,4 @@
+import { schoolDayIndex, nextSchoolDay } from "./schedule-days";
 export type Lesson = { id: string; time: string; subject: string };
 export type Timetable = {
   school: string;
@@ -37,7 +38,8 @@ export function emptyTimetable(): Timetable {
 
 export function nextLessonTime(day: Lesson[], lessonLen: number, breakLen: number) {
   if (day.length === 0) return "08:00";
-  return fromMin(toMin(day[day.length - 1]!.time) + lessonLen + breakLen);
+  const last = day[day.length - 1];
+  return last ? fromMin(toMin(last.time) + lessonLen + breakLen) : "08:00";
 }
 
 function buildDay(start: string, subjects: string[], len: number, brk: number): Lesson[] {
@@ -66,10 +68,7 @@ export function exampleTimetable(): Timetable {
 
 export const isEmpty = (tt: Timetable | null) => !tt || tt.days.every((d) => d.length === 0);
 
-export const dayIndexOf = (d: Date) => {
-  const g = d.getDay();
-  return g >= 1 && g <= 5 ? g - 1 : -1;
-};
+export const dayIndexOf = schoolDayIndex;
 
 export const sortByTime = (day: Lesson[] = []) =>
   day.filter((l) => l.subject.trim()).slice().sort((a, b) => toMin(a.time) - toMin(b.time));
@@ -109,12 +108,12 @@ export function getStatus(tt: Timetable, now: Date): Status {
       }
     }
   }
-  for (let off = 1; off <= 7; off++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() + off);
+  let d = nextSchoolDay(now);
+  for (let off = 0; off < 5; off++) {
     const idx = dayIndexOf(d);
     if (idx >= 0 && sortByTime(tt.days[idx]).length)
-      return { kind: "upcoming", dayIndex: idx, isTomorrow: off === 1, lessons: sortByTime(tt.days[idx]) };
+      return { kind: "upcoming", dayIndex: idx, isTomorrow: (() => { const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); return d.toDateString() === tomorrow.toDateString(); })(), lessons: sortByTime(tt.days[idx]) };
+    d = nextSchoolDay(d);
   }
   return { kind: "none" };
 }
