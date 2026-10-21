@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   DndContext,
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/edit")({
       { name: "description", content: "Set up your school, class, lessons and times." },
       { property: "og:title", content: "Edit timetable · Orar" },
       { property: "og:description", content: "Set up your school, class, lessons and times." },
+      { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Edit,
@@ -40,9 +42,9 @@ function Row({ lesson, onChange, onRemove, label }: { lesson: Lesson; onChange: 
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`flex items-center gap-1.5 ${isDragging ? "relative z-10 opacity-80" : ""}`}
     >
-      <button {...attributes} {...listeners} aria-label="Reorder" className="touch-none p-1 text-muted-foreground">
+      <Button {...attributes} {...listeners} variant="ghost" size="icon" aria-label={label === "Materie" ? "Reordonează" : "Reorder"} className="touch-none p-1 text-muted-foreground">
         <GripVertical className="size-4" />
-      </button>
+      </Button>
       <input
         type="time"
         step={60}
@@ -62,9 +64,9 @@ function Row({ lesson, onChange, onRemove, label }: { lesson: Lesson; onChange: 
           className={`${field} pl-8`}
         />
       </div>
-      <button onClick={onRemove} aria-label="Remove" className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground active:bg-muted">
+      <Button onClick={onRemove} variant="ghost" size="icon" aria-label={label === "Materie" ? "Șterge" : "Delete"} className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground active:bg-muted">
         <X className="size-4" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -101,9 +103,10 @@ function Edit() {
 
   const onDragEnd = (i: number) => (e: DragEndEvent) => {
     if (!e.over || e.active.id === e.over.id) return;
+    const overId = e.over.id;
     updDay(i, (day) => {
       const from = day.findIndex((l) => l.id === e.active.id);
-      const to = day.findIndex((l) => l.id === e.over!.id);
+      const to = day.findIndex((l) => l.id === overId);
       return arrayMove(day, from, to);
     });
   };
@@ -111,8 +114,8 @@ function Edit() {
   const save = () => {
     setData({
       ...draft,
-      lessonLen: Math.max(1, Number(draft.lessonLen) || 50),
-      breakLen: Math.max(0, Number(draft.breakLen) || 0),
+      lessonLen: Math.min(240, Math.max(1, Number(draft.lessonLen) || 50)),
+      breakLen: Math.min(120, Math.max(0, Number(draft.breakLen) || 0)),
     });
     toast.success(t.saved);
   };
@@ -135,12 +138,12 @@ function Edit() {
       </datalist>
 
       {isEmpty(draft) && (
-        <button
+        <Button
           onClick={() => setDraft(exampleTimetable())}
           className="glass-pill mb-4 w-full px-4 py-3 text-sm font-semibold text-primary"
         >
           {t.loadExample}
-        </button>
+        </Button>
       )}
 
       <section className="glass mb-5 grid grid-cols-2 gap-3 p-4">
@@ -196,25 +199,25 @@ function Edit() {
                 </div>
               </SortableContext>
             </DndContext>
-            <button
+            <Button
               onClick={() =>
                 updDay(i, (d) => [...d, { id: newId(), time: nextLessonTime(d, Number(draft.lessonLen) || 50, Number(draft.breakLen) || 0), subject: "" }])
               }
               className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground active:scale-95"
             >
               <Plus className="size-4" /> {t.addLesson}
-            </button>
+            </Button>
           </section>
         ))}
       </div>
 
       <div className="sticky bottom-24 z-30 mt-6 flex justify-center">
-        <button
+        <Button
           onClick={save}
           className="rounded-full bg-primary px-10 py-3.5 font-semibold text-primary-foreground shadow-xl transition-transform active:scale-95"
         >
           {t.save}
-        </button>
+        </Button>
       </div>
     </Page>
   );

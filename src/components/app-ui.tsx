@@ -1,5 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, Pencil, Settings, Sun, X } from "lucide-react";
+import { CalendarDays, BookOpen, Settings, Sun, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useApp } from "@/lib/store";
 import { exampleTimetable, subjectColor } from "@/lib/timetable";
@@ -17,7 +18,7 @@ export function PageHeader({ title, right }: { title: string; right?: ReactNode 
   const { t } = useApp();
   return (
     <header className="flex items-center justify-between pb-4 pt-2">
-      <h1 className="text-[34px] font-bold leading-tight tracking-tight">{title}</h1>
+      <h1 className="text-[34px] font-bold leading-tight ">{title}</h1>
       {right ?? (
         <Link
           to="/settings"
@@ -48,12 +49,12 @@ export function EmptyState() {
       </div>
       <h2 className="text-xl font-semibold">{t.emptyTitle}</h2>
       <p className="text-sm text-muted-foreground">{t.emptyBody}</p>
-      <button
+      <Button
         onClick={() => setData(exampleTimetable())}
         className="mt-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform active:scale-95"
       >
         {t.loadExample}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -63,17 +64,18 @@ export function TabBar() {
   const tabs = [
     { to: "/" as const, label: t.today, icon: Sun },
     { to: "/week" as const, label: t.week, icon: CalendarDays },
-    { to: "/edit" as const, label: t.edit, icon: Pencil },
+    { to: "/homework" as const, label: t.homework, icon: BookOpen },
+    { to: "/settings" as const, label: t.settings, icon: Settings },
   ];
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(env(safe-area-inset-bottom),14px)]">
-      <div className="glass-pill flex gap-1 p-1.5">
+      <div className="glass-pill grid w-full max-w-xl grid-cols-4 gap-1 p-1.5">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}
             activeOptions={{ exact: true }}
-            className="flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-all"
+            className="flex min-w-0 flex-col items-center gap-1 rounded-full px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all"
             activeProps={{ className: "bg-primary !text-primary-foreground shadow-md" }}
           >
             <Icon className="size-4" />
@@ -112,9 +114,9 @@ export function InstallHint() {
           <p className="text-sm font-semibold">{t.installTitle}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">{show === "ios" ? t.installIos : t.installAndroid}</p>
         </div>
-        <button onClick={close} aria-label={t.gotIt} className="rounded-full p-1 text-muted-foreground">
+        <Button variant="ghost" size="icon" onClick={close} aria-label={t.gotIt} className="rounded-full p-1 text-muted-foreground">
           <X className="size-4" />
-        </button>
+        </Button>
       </div>
     </div>
   );

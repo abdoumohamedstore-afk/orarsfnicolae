@@ -1,129 +1,50 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, Download, Upload } from "lucide-react";
-import { useRef, type ReactNode } from "react";
+import { CalendarPlus, Download, Upload, Pencil, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Page, PageHeader } from "@/components/app-ui";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { buildIcs, download } from "@/lib/ics";
 import { useApp, type ThemePref } from "@/lib/store";
-import { emptyTimetable, newId, type Timetable } from "@/lib/timetable";
-
-export const Route = createFileRoute("/settings")({
-  head: () => ({
-    meta: [
-      { title: "Settings · Orar" },
-      { name: "description", content: "Language, appearance, backup and calendar export." },
-      { property: "og:title", content: "Settings · Orar" },
-      { property: "og:description", content: "Language, appearance, backup and calendar export." },
-    ],
-  }),
-  component: SettingsPage,
-});
-
+import { emptyTimetable } from "@/lib/timetable";
+import { importBackup, subjectsOf } from "@/lib/student-data";
+export const Route = createFileRoute("/settings")({ head: () => ({ meta: [
+  { title: "Settings · Orar" }, { name: "description", content: "School details, materials, reminders and private device backups." },
+  { property: "og:title", content: "Settings · Orar" }, { property: "og:description", content: "School details, materials, reminders and private device backups." },
+  { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+] }), component: SettingsPage });
+const field = "mt-1 w-full rounded-full border border-input bg-secondary px-4 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring";
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: { v: T; l: string }[]; onChange: (v: T) => void }) {
-  return (
-    <div className="flex rounded-full bg-muted p-1">
-      {options.map((o) => (
-        <button
-          key={o.v}
-          onClick={() => onChange(o.v)}
-          className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all ${
-            value === o.v ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground"
-          }`}
-        >
-          {o.l}
-        </button>
-      ))}
-    </div>
-  );
+  return <div className="flex rounded-full bg-muted p-1">{options.map(o => <Button key={o.v} variant={value === o.v ? "default" : "ghost"} className="rounded-full px-3" onClick={() => onChange(o.v)}>{o.l}</Button>)}</div>;
 }
-
-function Row({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3 px-5 py-3.5">
-      <span className="font-medium">{label}</span>
-      {children}
-    </div>
-  );
-}
-
-function ActionRow({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 px-5 py-4 text-left font-medium active:bg-muted">
-      <span className="text-primary">{icon}</span>
-      {label}
-    </button>
-  );
-}
-
 function SettingsPage() {
-  const { t, lang, setLang, theme, setTheme, data, setData } = useApp();
-  const fileRef = useRef<HTMLInputElement>(null);
-  const tt = data ?? emptyTimetable();
-
-  const onImport = async (f: File) => {
-    try {
-      const j = JSON.parse(await f.text()) as Timetable;
-      if (!Array.isArray(j.days) || j.days.length !== 5) throw new Error();
-      setData({
-        ...emptyTimetable(),
-        ...j,
-        days: j.days.map((d) => d.map((l) => ({ id: newId(), time: String(l.time), subject: String(l.subject) }))),
-      });
-      toast.success(t.imported);
-    } catch {
-      toast.error(t.importFailed);
-    }
+  const { t, lang, setLang, theme, setTheme, data, state, update, replace, reset, ready } = useApp(); const fileRef = useRef<HTMLInputElement>(null); const [confirm, setConfirm] = useState(false);
+  const tt = data ?? emptyTimetable(); const subjects = subjectsOf(data);
+  const notificationToggle = async (kind: "lessons" | "evening", enabled: boolean) => {
+    if (enabled) { let allowed = false; try { allowed = "Notification" in window && await Notification.requestPermission() === "granted"; } catch {} if (!allowed) toast(t.permissionDenied); }
+    update(s => ({ ...s, reminders: { ...s.reminders, [kind]: enabled } }));
   };
-
-  return (
-    <Page>
-      <PageHeader
-        title={t.settings}
-        right={
-          <Link to="/" aria-label="Back" className="glass-pill grid size-11 place-items-center">
-            <ChevronLeft className="size-5" />
-          </Link>
-        }
-      />
-      <h3 className="mb-2 px-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t.general}</h3>
-      <div className="glass mb-6 divide-y divide-border">
-        <Row label={t.language}>
-          <Segmented value={lang} onChange={setLang} options={[{ v: "ro", l: "RO" }, { v: "en", l: "EN" }]} />
-        </Row>
-        <Row label={t.appearance}>
-          <Segmented<ThemePref>
-            value={theme}
-            onChange={setTheme}
-            options={[{ v: "auto", l: t.auto }, { v: "light", l: t.light }, { v: "dark", l: t.dark }]}
-          />
-        </Row>
-      </div>
-
-      <h3 className="mb-2 px-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t.data}</h3>
-      <div className="glass divide-y divide-border overflow-hidden">
-        <ActionRow
-          icon={<Download className="size-5" />}
-          label={t.exportJson}
-          onClick={() => download("orar.json", JSON.stringify(tt, null, 2), "application/json")}
-        />
-        <ActionRow icon={<Upload className="size-5" />} label={t.importJson} onClick={() => fileRef.current?.click()} />
-        <ActionRow
-          icon={<CalendarPlus className="size-5" />}
-          label={t.exportIcs}
-          onClick={() => download("orar.ics", buildIcs(tt, t.reminder), "text/calendar")}
-        />
-      </div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="application/json,.json"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) void onImport(f);
-          e.target.value = "";
-        }}
-      />
-    </Page>
-  );
+  const onImport = async (file: File) => { try { replace(importBackup(JSON.parse(await file.text()), state)); toast.success(t.imported); } catch { toast.error(t.importFailed); } };
+  if (!ready) return <Page><PageHeader title={t.settings} /></Page>;
+  return <Page><PageHeader title={t.settings} right={<span />} />
+    <section className="mb-6 space-y-3"><h2 className="text-sm font-semibold uppercase text-muted-foreground">{t.general}</h2>
+      <label className="block text-xs font-medium text-muted-foreground">{t.school}<input className={field} value={tt.school} onChange={e => update(s => ({ ...s, timetable: { ...(s.timetable ?? emptyTimetable()), school: e.target.value } }))} /></label>
+      <label className="block text-xs font-medium text-muted-foreground">{t.className}<input className={field} value={tt.className} onChange={e => update(s => ({ ...s, timetable: { ...(s.timetable ?? emptyTimetable()), className: e.target.value } }))} /></label>
+      <div className="grid grid-cols-2 gap-3">{(["lessonLen", "breakLen"] as const).map(key => <label key={key} className="text-xs font-medium text-muted-foreground">{t[key]}<input type="number" inputMode="numeric" min={key === "lessonLen" ? 1 : 0} max={key === "lessonLen" ? 240 : 120} className={field} value={tt[key]} onChange={e => update(s => ({ ...s, timetable: { ...(s.timetable ?? emptyTimetable()), [key]: Math.min(key === "lessonLen" ? 240 : 120, Math.max(key === "lessonLen" ? 1 : 0, Number(e.target.value))) } }))} /></label>)}</div>
+      <div className="flex flex-wrap items-center justify-between gap-2 py-2"><span className="text-sm font-medium">{t.language}</span><Segmented value={lang} onChange={setLang} options={[{ v: "ro", l: "RO" }, { v: "en", l: "EN" }]} /></div>
+      <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-medium">{t.appearance}</span><Segmented<ThemePref> value={theme} onChange={setTheme} options={[{ v: "auto", l: t.auto }, { v: "light", l: t.light }, { v: "dark", l: t.dark }]} /></div>
+      <Button asChild className="w-full rounded-full"><Link to="/edit"><Pencil />{t.editTimetable}</Link></Button>
+    </section>
+    <section className="mb-6"><h2 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">{t.materials}</h2><div className="space-y-3">{subjects.map(subject => <label key={subject} className="block text-sm font-medium">{subject}<input className={field} value={(state.materials[subject] ?? []).join(", ")} placeholder={t.materialsPlaceholder} onChange={e => { const items = e.target.value.split(","); update(s => ({ ...s, materials: { ...s.materials, [subject]: items } })); }} /></label>)}{!subjects.length && <Button asChild variant="secondary" className="rounded-full"><Link to="/edit">{t.editTimetable}</Link></Button>}</div></section>
+    <section className="mb-6"><h2 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">{t.notifications}</h2><div className="space-y-4">{(["lessons", "evening"] as const).map(kind => <label key={kind} className="flex items-center justify-between gap-4 text-sm font-medium">{kind === "lessons" ? t.lessonReminders : t.eveningReminder}<input type="checkbox" role="switch" className="size-5 shrink-0 accent-primary" checked={state.reminders[kind]} onChange={e => void notificationToggle(kind, e.target.checked)} /></label>)}{state.reminders.evening && <label className="block text-sm">{t.reminderTime}<input type="time" className={field} value={state.reminders.time} onChange={e => { if (e.target.value) update(s => ({ ...s, reminders: { ...s.reminders, time: e.target.value } })); }} /></label>}<p className="text-xs leading-relaxed text-muted-foreground">{t.reminderLimit}</p></div></section>
+    <section className="space-y-2"><h2 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">{t.data}</h2>
+      <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => download("orar-backup.json", JSON.stringify(state, null, 2), "application/json")}><Download />{t.backupExport}</Button>
+      <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => fileRef.current?.click()}><Upload />{t.backupImport}</Button>
+      <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => download("orar.ics", buildIcs(tt, t.reminder), "text/calendar")}><CalendarPlus />{t.exportIcs}</Button>
+      <Button variant="ghost" className="h-auto w-full justify-start rounded-full py-3 text-destructive" onClick={() => setConfirm(true)}><Trash2 />{t.resetData}</Button>
+    </section><p className="mt-5 text-center text-xs text-muted-foreground">{t.privacy}</p>
+    <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) void onImport(file); e.target.value = ""; }} />
+    <AlertDialog open={confirm} onOpenChange={setConfirm}><AlertDialogContent className="w-[calc(100%-32px)] rounded-3xl"><AlertDialogTitle>{t.resetData}</AlertDialogTitle><AlertDialogDescription>{t.resetConfirm}</AlertDialogDescription><AlertDialogFooter><AlertDialogCancel className="rounded-full">{t.cancel}</AlertDialogCancel><AlertDialogAction className="rounded-full bg-destructive text-destructive-foreground" onClick={() => { reset(); toast.success(t.resetDone); }}>{t.resetData}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+  </Page>;
 }

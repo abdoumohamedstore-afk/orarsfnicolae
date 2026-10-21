@@ -28,14 +28,14 @@ export default defineConfig({
           runtimeCaching: [
             {
               urlPattern: ({ request, url }) =>
-                request.mode === "navigate" && !url.pathname.startsWith("/~oauth"),
+                request.mode === "navigate" && url.origin === self.location.origin && !url.pathname.startsWith("/~oauth"),
               handler: "NetworkFirst",
-              options: { cacheName: "pages", networkTimeoutSeconds: 3 },
+              options: { cacheName: "orar-pages", networkTimeoutSeconds: 3 },
             },
             {
-              urlPattern: ({ url }) => url.origin === "https://fonts.gstatic.com" || url.origin === "https://fonts.googleapis.com",
-              handler: "StaleWhileRevalidate",
-              options: { cacheName: "fonts" },
+              urlPattern: ({ url }) => url.origin === self.location.origin && /\/assets\/.*-[\w-]+\.(?:js|css|woff2|png)$/.test(url.pathname),
+              handler: "CacheFirst",
+              options: { cacheName: "orar-assets" },
             },
           ],
         },
