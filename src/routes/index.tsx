@@ -1,3 +1,5 @@
+import { Packing, HomeworkPreview } from "@/components/packing";
+import { isSchoolDay, nextSchoolDay, formatSchoolDate, schoolDayIndex } from "@/lib/schedule-days";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Dot, EmptyState, Page, PageHeader } from "@/components/app-ui";
@@ -11,6 +13,7 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "What lesson is now, what's next, and today's schedule." },
       { property: "og:title", content: "Today · Orar" },
       { property: "og:description", content: "What lesson is now, what's next, and today's schedule." },
+      { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Today,
@@ -27,7 +30,7 @@ function useNow() {
 }
 
 function Today() {
-  const { t, data, ready } = useApp();
+  const { t, data, ready, lang } = useApp();
   const now = useNow();
   if (!ready || !now) return <Page><PageHeader title={t.today} /></Page>;
   if (!data || isEmpty(data))
@@ -39,6 +42,9 @@ function Today() {
     );
 
   const status = getStatus(data, now);
+  const nextDay = nextSchoolDay(now);
+  const nextFirst = sortByTime(data.days[schoolDayIndex(nextDay)])[0];
+  const finished = isSchoolDay(now) && status.kind === "upcoming";
   const di = dayIndexOf(now);
   const today = di >= 0 ? sortByTime(data.days[di]) : [];
   const label = [data.school, data.className].filter(Boolean).join(" · ");
@@ -58,7 +64,7 @@ function Today() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t.now}</p>
             <div className="mt-1 flex items-center gap-3">
               <Dot subject={status.lesson.subject} className="size-3.5" />
-              <h2 className="text-3xl font-bold tracking-tight">{status.lesson.subject}</h2>
+              <h2 className="min-w-0 break-words text-3xl font-bold ">{status.lesson.subject}</h2>
             </div>
             <p className="mt-2 text-muted-foreground">{t.minLeft(status.minsLeft)}</p>
             <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted">
@@ -83,8 +89,8 @@ function Today() {
         {status.kind === "break" && (
           <>
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t.breakTitle}</p>
-            <h2 className="mt-1 text-3xl font-bold tracking-tight">{t.nextIn(status.minsUntil)}</h2>
-            <p className="mt-3 flex items-center gap-2 text-sm">
+            <h2 className="mt-1 text-3xl font-bold ">{t.nextIn(status.minsUntil)}</h2>
+            <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
               <Dot subject={status.next.subject} />
               <span className="text-muted-foreground">{t.next}:</span>
               <span className="font-semibold">{status.next.subject}</span>
@@ -97,17 +103,17 @@ function Today() {
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t.startsAt(status.first.time)}</p>
             <div className="mt-1 flex items-center gap-3">
               <Dot subject={status.first.subject} className="size-3.5" />
-              <h2 className="text-3xl font-bold tracking-tight">{status.first.subject}</h2>
+              <h2 className="min-w-0 break-words text-3xl font-bold ">{status.first.subject}</h2>
             </div>
             <p className="mt-2 text-muted-foreground">{t.startsIn(status.minsUntil)}</p>
           </>
         )}
-        {status.kind === "upcoming" && (
+        {!isSchoolDay(now) ? (<><h2 className="text-2xl font-bold">{t.noClasses}</h2><p className="mt-3 text-sm text-muted-foreground">{t.nextSchool}: {formatSchoolDate(nextDay, lang)}</p>{nextFirst && <p className="mt-3 font-semibold">{nextFirst.time} · {nextFirst.subject}</p>}</>) : finished ? (<h2 className="text-2xl font-bold">{t.finished}</h2>) : status.kind === "upcoming" && (
           <>
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               {status.isTomorrow ? t.tomorrow : t.days[status.dayIndex]}
             </p>
-            <h2 className="mt-1 text-3xl font-bold tracking-tight">{t.startsAt(status.lessons[0]?.time ?? "")}</h2>
+            <h2 className="mt-1 text-3xl font-bold ">{t.startsAt(status.lessons[0]?.time ?? "")}</h2>
             <ul className="mt-4 space-y-2">
               {status.lessons.map((l) => (
                 <li key={l.id} className="flex items-center gap-3 text-sm">
@@ -150,6 +156,8 @@ function Today() {
           )}
         </>
       )}
+      <HomeworkPreview now={now} />
+      <Packing now={now} />
     </Page>
   );
 }

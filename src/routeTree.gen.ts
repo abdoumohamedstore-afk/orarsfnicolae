@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditRouteImport } from './routes/edit'
+import { Route as HomeworkRouteImport } from './routes/homework'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as WeekRouteImport } from './routes/week'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const EditRoute = EditRouteImport.update({
   id: '/edit',
   path: '/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeworkRoute = HomeworkRouteImport.update({
+  id: '/homework',
+  path: '/homework',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -38,12 +44,14 @@ const WeekRoute = WeekRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/edit': typeof EditRoute
+  '/homework': typeof HomeworkRoute
   '/settings': typeof SettingsRoute
   '/week': typeof WeekRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/edit': typeof EditRoute
+  '/homework': typeof HomeworkRoute
   '/settings': typeof SettingsRoute
   '/week': typeof WeekRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/edit': typeof EditRoute
+  '/homework': typeof HomeworkRoute
   '/settings': typeof SettingsRoute
   '/week': typeof WeekRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/edit' | '/settings' | '/week'
+  fullPaths: '/' | '/edit' | '/homework' | '/settings' | '/week'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/edit' | '/settings' | '/week'
-  id: '__root__' | '/' | '/edit' | '/settings' | '/week'
+  to: '/' | '/edit' | '/homework' | '/settings' | '/week'
+  id: '__root__' | '/' | '/edit' | '/homework' | '/settings' | '/week'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EditRoute: typeof EditRoute
+  HomeworkRoute: typeof HomeworkRoute
   SettingsRoute: typeof SettingsRoute
   WeekRoute: typeof WeekRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/edit'
       fullPath: '/edit'
       preLoaderRoute: typeof EditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/homework': {
+      id: '/homework'
+      path: '/homework'
+      fullPath: '/homework'
+      preLoaderRoute: typeof HomeworkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EditRoute: EditRoute,
+  HomeworkRoute: HomeworkRoute,
   SettingsRoute: SettingsRoute,
   WeekRoute: WeekRoute,
 }
