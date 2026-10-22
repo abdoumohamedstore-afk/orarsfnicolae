@@ -5,7 +5,7 @@ import { emptyTimetable, sortByTime, type Timetable } from "./timetable";
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(s => { const d = new Date(`${s}T12:00:00`); return !Number.isNaN(d.getTime()) && dateKey(d) === s; });
 const lesson = z.object({ id: z.string(), time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/), subject: z.string() });
 export const timetableSchema = z.object({ school: z.string(), className: z.string(), lessonLen: z.number().int().min(1).max(240), breakLen: z.number().int().min(0).max(120), days: z.array(z.array(lesson)).length(5) });
-const homeworkSchema = z.object({ id: z.string(), type: z.enum(["homework", "test"]), subject: z.string().min(1), title: z.string().min(1), note: z.string(), due: date, done: z.boolean() });
+export const homeworkSchema = z.object({ id: z.string(), type: z.enum(["homework", "test"]), subject: z.string().trim().min(1), title: z.string().trim().min(1), note: z.string(), due: date, done: z.boolean() });
 export type Homework = z.infer<typeof homeworkSchema>;
 const packSchema = z.object({ checked: z.array(z.string()), extras: z.array(z.object({ id: z.string(), title: z.string() })) });
 const remindersSchema = z.object({ lessons: z.boolean(), evening: z.boolean(), time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/) });

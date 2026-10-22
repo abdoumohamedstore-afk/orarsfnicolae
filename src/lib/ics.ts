@@ -37,13 +37,16 @@ export function buildIcs(tt: Timetable, reminderText: string, from = new Date())
     sortByTime(day).forEach((l, i) => {
       const s = toMin(l.time);
       const e = s + tt.lessonLen;
-      const fmt = (m: number) => `${pad(Math.floor(m / 60))}${pad(m % 60)}00`;
+      const fmt = (m: number) => `${pad(Math.floor((m % 1440) / 60))}${pad(m % 60)}00`;
+      const endDay = new Date(d);
+      endDay.setDate(endDay.getDate() + Math.floor(e / 1440));
+      const endDate = `${endDay.getFullYear()}${pad(endDay.getMonth() + 1)}${pad(endDay.getDate())}`;
       lines.push(
         "BEGIN:VEVENT",
         `UID:orar-${di}-${i}-${l.id}@orar`,
         `DTSTAMP:${stamp}`,
         `DTSTART;TZID=Europe/Bucharest:${date}T${fmt(s)}`,
-        `DTEND;TZID=Europe/Bucharest:${date}T${fmt(e)}`,
+        `DTEND;TZID=Europe/Bucharest:${endDate}T${fmt(e)}`,
         "RRULE:FREQ=WEEKLY",
         `SUMMARY:${esc(l.subject)}`,
         ...(tt.className ? [`DESCRIPTION:${esc([tt.school, tt.className].filter(Boolean).join(" · "))}`] : []),
