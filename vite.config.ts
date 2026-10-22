@@ -30,7 +30,7 @@ export default defineConfig({
           runtimeCaching: [
             {
               urlPattern: ({ request, url }) =>
-                (request.mode === "navigate" || request.headers.get("Accept")?.includes("text/html")) && url.origin === self.location.origin && !url.pathname.startsWith("/~oauth"),
+                (request.mode === "navigate" || !!request.headers.get("Accept")?.includes("text/html")) && url.origin === self.location.origin && !url.pathname.startsWith("/~oauth"),
               handler: "NetworkFirst",
               options: { cacheName: "orar-pages", networkTimeoutSeconds: 3 },
             },
