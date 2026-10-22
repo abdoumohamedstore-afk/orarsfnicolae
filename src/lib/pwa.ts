@@ -1,5 +1,16 @@
 // The only app-shell SW registrar. Preview/dev never register this worker.
 let registration: ServiceWorkerRegistration | undefined;
+async function prepareOfflinePages(callbacks?: { onReady: () => void }) {
+  try {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) {
+      await new Promise<void>(resolve => navigator.serviceWorker.addEventListener("controllerchange", () => resolve(), { once: true }));
+    }
+    // Prime every content page through the generated worker's NetworkFirst rule.
+    const pages = await Promise.all(["/", "/week", "/homework", "/settings", "/edit"].map(path => fetch(path, { headers: { Accept: "text/html" } })));
+    if (pages.every(page => page.ok)) callbacks?.onReady();
+  } catch { /* Do not claim offline readiness if a page could not be cached. */ }
+}
 export async function refreshApp() {
   if (registration?.waiting) {
     navigator.serviceWorker.addEventListener("controllerchange", () => window.location.reload(), { once: true });
@@ -22,9 +33,9 @@ export async function setupServiceWorker(callbacks?: { onReady: () => void; onUp
     registration.addEventListener("updatefound", () => {
       const worker = registration?.installing;
       worker?.addEventListener("statechange", () => {
-        if (worker.state === "installed") { if (navigator.serviceWorker.controller) callbacks?.onUpdate(); else callbacks?.onReady(); }
+        if (worker.state === "installed" && navigator.serviceWorker.controller) callbacks?.onUpdate();
       });
     });
-    if (registration.active) callbacks?.onReady();
+    void prepareOfflinePages(callbacks);
   } catch { /* No offline-ready claim if registration fails. */ }
 }
