@@ -23,12 +23,14 @@ export default defineConfig({
         filename: "sw.js",
         devOptions: { enabled: false },
         workbox: {
+          skipWaiting: false,
+          clientsClaim: true,
           globPatterns: ["**/*.{js,css,png,svg,ico,webmanifest,woff2}"],
           navigateFallback: null,
           runtimeCaching: [
             {
               urlPattern: ({ request, url }) =>
-                request.mode === "navigate" && url.origin === self.location.origin && !url.pathname.startsWith("/~oauth"),
+                (request.mode === "navigate" || request.headers.get("Accept")?.includes("text/html")) && url.origin === self.location.origin && !url.pathname.startsWith("/~oauth"),
               handler: "NetworkFirst",
               options: { cacheName: "orar-pages", networkTimeoutSeconds: 3 },
             },
