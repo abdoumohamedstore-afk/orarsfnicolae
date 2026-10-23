@@ -28,7 +28,7 @@ export function settingsOf(state: StudentData, lang?: "ro" | "en"): CalendarSett
 }
 /** v1 backups lack the calendar fields; fill defaults before validating as v2. */
 function migrateV1(value: Record<string, unknown>): unknown {
-  if (value.version !== 1) return value;
+  if (value["version"] !== 1) return value;
   return { ...value, version: 2, grade: "V-VII", countyWeek: "unknown", specialWeeks: [], daysOff: [] };
 }
 export function importBackup(value: unknown, current = emptyStudentData()): StudentData {
