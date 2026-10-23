@@ -1,4 +1,4 @@
-import { schoolDayIndex, nextSchoolDay } from "./schedule-days";
+import { schoolDayIndex, nextSchoolDay, isSchoolDay, type CalendarSettings } from "./schedule-days";
 export type Lesson = { id: string; time: string; subject: string };
 export type Timetable = {
   school: string;
@@ -80,10 +80,10 @@ export type Status =
   | { kind: "upcoming"; dayIndex: number; isTomorrow: boolean; lessons: Lesson[] }
   | { kind: "none" };
 
-export function getStatus(tt: Timetable, now: Date): Status {
+export function getStatus(tt: Timetable, now: Date, settings?: CalendarSettings): Status {
   const di = dayIndexOf(now);
   const nowMin = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-  if (di >= 0) {
+  if (di >= 0 && isSchoolDay(now, settings)) {
     const day = sortByTime(tt.days[di]);
     const first = day[0];
     if (first) {
@@ -108,12 +108,12 @@ export function getStatus(tt: Timetable, now: Date): Status {
       }
     }
   }
-  let d = nextSchoolDay(now);
-  for (let off = 0; off < 5; off++) {
+  let d = nextSchoolDay(now, settings);
+  for (let off = 0; off < 40; off++) {
     const idx = dayIndexOf(d);
     if (idx >= 0 && sortByTime(tt.days[idx]).length)
       return { kind: "upcoming", dayIndex: idx, isTomorrow: (() => { const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); return d.toDateString() === tomorrow.toDateString(); })(), lessons: sortByTime(tt.days[idx]) };
-    d = nextSchoolDay(d);
+    d = nextSchoolDay(d, settings);
   }
   return { kind: "none" };
 }
