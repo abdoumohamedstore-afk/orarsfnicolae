@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { dict, type Dict, type Lang } from "./i18n";
 import type { Timetable } from "./timetable";
-import { emptyStudentData, importBackup, studentSchema, type StudentData } from "./student-data";
+import { emptyStudentData, importBackup, type StudentData } from "./student-data";
 export type ThemePref = "auto" | "light" | "dark";
 type Ctx = {
   ready: boolean; data: Timetable | null; setData: (t: Timetable) => void;
@@ -20,7 +20,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     base.lang = navigator.language.toLowerCase().startsWith("ro") ? "ro" : "en";
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setState(studentSchema.parse(JSON.parse(raw)));
+      if (raw) setState(importBackup(JSON.parse(raw)));
       else {
         const lang = localStorage.getItem("orar.lang"); const theme = localStorage.getItem("orar.theme");
         if (lang === "ro" || lang === "en") base.lang = lang;

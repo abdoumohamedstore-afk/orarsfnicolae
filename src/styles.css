@@ -72,6 +72,14 @@
   --subject-5: #14b8a6;
   --subject-6: #f5b700;
   --subject-7: #ec5cb8;
+
+  /* Day-status colors (official school-year chart) */
+  --cal-school: #f5d76e;
+  --cal-vacation: #34c759;
+  --cal-county: #a8e6a3;
+  --cal-holiday: #5aa9ff;
+  --cal-marker: #ff9a3d;
+  --cal-weekend: oklch(0.2 0.02 270 / 18%);
 }
 
 .dark {
@@ -94,6 +102,9 @@
   --glass-strong: oklch(1 0 0 / 18%);
   --glass-border: oklch(1 0 0 / 16%);
   --glass-shadow: 0 8px 32px -12px oklch(0 0 0 / 50%);
+
+  --cal-school: #b3952f;
+  --cal-weekend: oklch(1 0 0 / 14%);
 }
 
 @utility glass {
