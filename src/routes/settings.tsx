@@ -8,7 +8,8 @@ import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescripti
 import { buildIcs, download } from "@/lib/ics";
 import { useApp, type ThemePref } from "@/lib/store";
 import { emptyTimetable } from "@/lib/timetable";
-import { importBackup, subjectsOf } from "@/lib/student-data";
+import { importBackup, settingsOf, subjectsOf } from "@/lib/student-data";
+import { CalendarSettingsPanel } from "@/components/calendar-settings";
 export const Route = createFileRoute("/settings")({ head: () => ({ meta: [
   { title: "Settings · Orar" }, { name: "description", content: "School details, materials, reminders and private device backups." },
   { property: "og:title", content: "Settings · Orar" }, { property: "og:description", content: "School details, materials, reminders and private device backups." },
@@ -36,12 +37,13 @@ function SettingsPage() {
       <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-medium">{t.appearance}</span><Segmented<ThemePref> value={theme} onChange={setTheme} options={[{ v: "auto", l: t.auto }, { v: "light", l: t.light }, { v: "dark", l: t.dark }]} /></div>
       <Button asChild className="w-full rounded-full"><Link to="/edit"><Pencil />{t.editTimetable}</Link></Button>
     </section>
+    <CalendarSettingsPanel />
     <section className="mb-6"><h2 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">{t.materials}</h2><div className="space-y-3">{subjects.map(subject => <label key={subject} className="block text-sm font-medium">{subject}<input className={field} value={(state.materials[subject] ?? []).join(",")} placeholder={t.materialsPlaceholder} onChange={e => { const items = e.target.value.split(","); update(s => ({ ...s, materials: { ...s.materials, [subject]: items } })); }} /></label>)}{!subjects.length && <Button asChild variant="secondary" className="rounded-full"><Link to="/edit">{t.editTimetable}</Link></Button>}</div></section>
     <section className="mb-6"><h2 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">{t.notifications}</h2><div className="space-y-4">{(["lessons", "evening"] as const).map(kind => <label key={kind} className="flex items-center justify-between gap-4 text-sm font-medium">{kind === "lessons" ? t.lessonReminders : t.eveningReminder}<input type="checkbox" role="switch" className="size-5 shrink-0 accent-primary" checked={state.reminders[kind]} onChange={e => void notificationToggle(kind, e.target.checked)} /></label>)}{state.reminders.evening && <label className="block text-sm">{t.reminderTime}<input type="time" className={field} value={state.reminders.time} onChange={e => { if (e.target.value) update(s => ({ ...s, reminders: { ...s.reminders, time: e.target.value } })); }} /></label>}<p className="text-xs leading-relaxed text-muted-foreground">{t.reminderLimit}</p></div></section>
     <section className="space-y-2"><h2 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">{t.data}</h2>
       <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => download("orar-backup.json", JSON.stringify(state, null, 2), "application/json")}><Download />{t.backupExport}</Button>
       <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => fileRef.current?.click()}><Upload />{t.backupImport}</Button>
-      <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => download("orar.ics", buildIcs(tt, t.reminder), "text/calendar")}><CalendarPlus />{t.exportIcs}</Button>
+      <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => download("orar.ics", buildIcs(tt, t.reminder, new Date(), settingsOf(state)), "text/calendar")}><CalendarPlus />{t.exportIcs}</Button>
       <Button variant="ghost" className="h-auto w-full justify-start rounded-full py-3 text-destructive" onClick={() => setConfirm(true)}><Trash2 />{t.resetData}</Button>
     </section><p className="mt-5 text-center text-xs text-muted-foreground">{t.privacy}</p>
     <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) void onImport(file); e.target.value = ""; }} />
