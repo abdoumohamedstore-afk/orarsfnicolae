@@ -109,7 +109,7 @@ export function getStatus(tt: Timetable, now: Date, settings?: CalendarSettings)
     }
   }
   let d = nextSchoolDay(now, settings);
-  for (let off = 0; off < 40; off++) {
+  for (let off = 0; d && off < 40; off++) {
     const idx = dayIndexOf(d);
     if (idx >= 0 && sortByTime(tt.days[idx]).length)
       return { kind: "upcoming", dayIndex: idx, isTomorrow: (() => { const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); return d.toDateString() === tomorrow.toDateString(); })(), lessons: sortByTime(tt.days[idx]) };

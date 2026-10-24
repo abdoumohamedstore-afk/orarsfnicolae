@@ -87,10 +87,15 @@ export function isSchoolDay(date: Date, settings?: CalendarSettings): boolean {
 }
 
 /** Always strictly after the supplied date; preserve local dates across DST. Skips weekends, vacations, holidays and weeks without lessons. */
-export function nextSchoolDay(date: Date, settings?: CalendarSettings): Date {
+export function nextSchoolDay(date: Date, settings?: CalendarSettings): Date | null {
   const next = new Date(date);
   next.setHours(12, 0, 0, 0);
-  do { next.setDate(next.getDate() + 1); } while (!isSchoolDay(next, settings));
+  const last = ACTIVE_CALENDAR.lastDayByGrade[settings?.grade ?? "V-VII"];
+  if (!Number.isFinite(next.getTime())) return null;
+  do {
+    next.setDate(next.getDate() + 1);
+    if (dateKey(next) > last) return null;
+  } while (!isSchoolDay(next, settings));
   return next;
 }
 
