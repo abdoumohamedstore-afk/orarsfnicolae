@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/store";
 import { setupServiceWorker, refreshApp } from "@/lib/pwa";
 import { dueReminders } from "@/lib/reminders";
+import { formatSchoolDate, parseDate } from "@/lib/schedule-days";
 export function AppStatus() {
   const { state, ready, t, storageError } = useApp(); const [offline, setOffline] = useState(false); const [update, setUpdate] = useState(false); const seen = useRef(new Set<string>()); const latest = useRef({ state, t });
   useEffect(() => { latest.current = { state, t }; }, [state, t]);
@@ -22,7 +23,7 @@ export function AppStatus() {
         const key = `orar.reminder:${reminder.id}`;
         try { if (sessionStorage.getItem(key)) continue; sessionStorage.setItem(key, "1"); } catch {}
         seen.current.add(reminder.id);
-        const body = reminder.kind === "lesson" ? `${reminder.subject ?? ""} ${text.reminder}` : text.packingReminder;
+        const body = reminder.kind === "lesson" ? `${reminder.subject ?? ""} ${text.reminder}` : `${text.bring}${reminder.date ? ` · ${formatSchoolDate(parseDate(reminder.date), current.lang)}` : ""}`;
         toast(body, { duration: 15_000 });
         if ("Notification" in window && Notification.permission === "granted") {
           try { const registration = await navigator.serviceWorker?.getRegistration(); if (registration) await registration.showNotification("Orar", { body, tag: reminder.id, icon: "/icon-192.png" }); else new Notification("Orar", { body, tag: reminder.id }); } catch {}

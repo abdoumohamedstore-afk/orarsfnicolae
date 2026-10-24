@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApp } from "@/lib/store";
 import { newId } from "@/lib/timetable";
 import { dateKey, parseDate } from "@/lib/schedule-days";
-import { homeworkSchema, nextSubjectDate, subjectsOf, type Homework } from "@/lib/student-data";
+import { homeworkSchema, nextSubjectDate, settingsOf, subjectsOf, type Homework } from "@/lib/student-data";
 export const Route = createFileRoute("/homework")({ head: () => ({ meta: [
   { title: "Homework · Orar" }, { name: "description", content: "Homework, tests and due dates saved on your phone." },
   { property: "og:title", content: "Homework · Orar" }, { property: "og:description", content: "Homework, tests and due dates saved on your phone." },
@@ -29,7 +29,7 @@ function HomeworkRow({ item, edit }: { item: Homework; edit: () => void }) {
 function HomeworkPage() {
   const { t, data, state, update, ready } = useApp(); const [done, setDone] = useState(false); const [filter, setFilter] = useState(""); const [draft, setDraft] = useState<Homework | null>(null);
   const subjects = subjectsOf(data); const filters = [...new Set([...subjects, ...state.homework.map(h => h.subject)])];
-  const openNew = () => { const subject = subjects[0] ?? ""; setDraft({ id: newId(), type: "homework", subject, title: "", note: "", due: nextSubjectDate(data, subject, new Date()), done: false }); };
+  const openNew = () => { const subject = subjects[0] ?? ""; setDraft({ id: newId(), type: "homework", subject, title: "", note: "", due: nextSubjectDate(data, subject, new Date(), settingsOf(state)), done: false }); };
   const rows = state.homework.filter(h => h.done === done && (!filter || h.subject === filter)).sort((a, b) => a.due.localeCompare(b.due));
   if (!ready) return <Page><PageHeader title={t.homework} /></Page>;
   return <Page><PageHeader title={t.homework} right={<Button size="icon" className="size-11 rounded-full" onClick={openNew} aria-label={t.addHomework}><Plus /></Button>} />
@@ -38,7 +38,7 @@ function HomeworkPage() {
     <div className="space-y-3">{rows.map(item => <HomeworkRow key={item.id} item={item} edit={() => setDraft({ ...item })} />)}{!rows.length && <p className="py-12 text-center text-muted-foreground">{t.noHomework}</p>}</div>
     <Dialog open={!!draft} onOpenChange={open => { if (!open) setDraft(null); }}><DialogContent className="max-h-[90dvh] w-[calc(100%-32px)] overflow-y-auto rounded-3xl" aria-describedby={undefined}><DialogTitle>{state.homework.some(h => h.id === draft?.id) ? t.editHomework : t.addHomework}</DialogTitle>{draft && <form className="space-y-3" onSubmit={e => { e.preventDefault(); const result = homeworkSchema.safeParse(draft); if (!result.success) { toast.error(t.requiredFields); return; } const saved = result.data; update(s => ({ ...s, homework: [...s.homework.filter(h => h.id !== saved.id), saved] })); setDraft(null); }}>
       <div className="flex gap-2">{(["homework", "test"] as const).map(type => <Button key={type} type="button" className="flex-1 rounded-full" variant={draft.type === type ? "default" : "secondary"} onClick={() => setDraft({ ...draft, type })}>{type === "test" ? t.test : t.homeworkType}</Button>)}</div>
-      <label className="block text-sm">{t.subject}<select required value={draft.subject} className={field} onChange={e => setDraft({ ...draft, subject: e.target.value, due: nextSubjectDate(data, e.target.value, new Date()) })}><option value="">—</option>{[...new Set([...subjects, draft.subject])].filter(Boolean).map(s => <option key={s}>{s}</option>)}</select></label>
+      <label className="block text-sm">{t.subject}<select required value={draft.subject} className={field} onChange={e => setDraft({ ...draft, subject: e.target.value, due: nextSubjectDate(data, e.target.value, new Date(), settingsOf(state)) })}><option value="">—</option>{[...new Set([...subjects, draft.subject])].filter(Boolean).map(s => <option key={s}>{s}</option>)}</select></label>
       <label className="block text-sm">{t.title}<input required className={field} value={draft.title} onChange={e => setDraft({ ...draft, title: e.target.value })} /></label>
       <label className="block text-sm">{t.note}<textarea className={field} rows={2} value={draft.note} onChange={e => setDraft({ ...draft, note: e.target.value })} /></label>
       <label className="block text-sm">{t.dueDate}<input required type="date" className={field} value={draft.due} onChange={e => setDraft({ ...draft, due: e.target.value })} /></label>

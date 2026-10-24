@@ -1,5 +1,6 @@
 import { Packing, HomeworkPreview } from "@/components/packing";
-import { isSchoolDay, nextSchoolDay, formatSchoolDate, schoolDayIndex } from "@/lib/schedule-days";
+import { nextSchoolDay, formatSchoolDate, schoolDayIndex, getDayStatus, nextBreak, daysUntil } from "@/lib/schedule-days";
+import { settingsOf } from "@/lib/student-data";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Dot, EmptyState, Page, PageHeader } from "@/components/app-ui";
@@ -30,7 +31,7 @@ function useNow() {
 }
 
 function Today() {
-  const { t, data, ready, lang } = useApp();
+  const { t, data, state, ready, lang } = useApp();
   const now = useNow();
   if (!ready || !now) return <Page><PageHeader title={t.today} /></Page>;
   if (!data || isEmpty(data))
@@ -41,10 +42,13 @@ function Today() {
       </Page>
     );
 
-  const status = getStatus(data, now);
-  const nextDay = nextSchoolDay(now);
-  const nextFirst = sortByTime(data.days[schoolDayIndex(nextDay)])[0];
-  const finished = isSchoolDay(now) && status.kind === "upcoming";
+  const settings = settingsOf(state);
+  const dayStatus = getDayStatus(now, settings);
+  const status = getStatus(data, now, settings);
+  const nextDay = nextSchoolDay(now, settings);
+  const nextFirst = nextDay ? sortByTime(data.days[schoolDayIndex(nextDay)])[0] : undefined;
+  const upcomingBreak = dayStatus.isSchoolDay ? nextBreak(now, settings) : null;
+  const finished = dayStatus.isSchoolDay && status.kind === "upcoming";
   const di = dayIndexOf(now);
   const today = di >= 0 ? sortByTime(data.days[di]) : [];
   const label = [data.school, data.className].filter(Boolean).join(" · ");
@@ -108,7 +112,7 @@ function Today() {
             <p className="mt-2 text-muted-foreground">{t.startsIn(status.minsUntil)}</p>
           </>
         )}
-        {!isSchoolDay(now) ? (<><h2 className="text-2xl font-bold">{t.noClasses}</h2><p className="mt-3 text-sm text-muted-foreground">{t.nextSchool}: {formatSchoolDate(nextDay, lang)}</p>{nextFirst && <p className="mt-3 font-semibold">{nextFirst.time} · {nextFirst.subject}</p>}</>) : finished ? (<h2 className="text-2xl font-bold">{t.finished}</h2>) : status.kind === "upcoming" && (
+        {!dayStatus.isSchoolDay ? (<><h2 className="text-2xl font-bold" style={{ color: dayStatus.color }}>{dayStatus.label}</h2>{nextDay && <><p className="mt-2 text-sm">{t.daysLeft(daysUntil(nextDay, now))}</p><p className="mt-3 text-sm text-muted-foreground">{t.backToSchool}: {formatSchoolDate(nextDay, lang)}</p></>}{nextFirst && <p className="mt-3 font-semibold">{nextFirst.time} · {nextFirst.subject}</p>}</>) : finished ? (<h2 className="text-2xl font-bold">{t.finished}</h2>) : status.kind === "upcoming" && (
           <>
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               {status.isTomorrow ? t.tomorrow : t.days[status.dayIndex]}
@@ -125,10 +129,12 @@ function Today() {
             </ul>
           </>
         )}
-        {status.kind === "none" && <p className="text-muted-foreground">{t.noSchool}</p>}
+        {status.kind === "none" && dayStatus.isSchoolDay && <p className="text-muted-foreground">{t.noSchool}</p>}
+        {dayStatus.note && <p className="mt-3 text-xs text-muted-foreground">{dayStatus.note}</p>}
+        {upcomingBreak && <p className="mt-4 rounded-full bg-accent px-3 py-2 text-xs text-accent-foreground">{t.nextBreakIn(upcomingBreak.days, upcomingBreak.label)}</p>}
       </section>
 
-      {di >= 0 && (
+      {di >= 0 && dayStatus.isSchoolDay && (
         <>
           <h3 className="mb-3 px-1 text-lg font-semibold">{t.todayLessons}</h3>
           {today.length === 0 ? (

@@ -9,8 +9,8 @@ export const homeworkSchema = z.object({ id: z.string(), type: z.enum(["homework
 export type Homework = z.infer<typeof homeworkSchema>;
 const packSchema = z.object({ checked: z.array(z.string()), extras: z.array(z.object({ id: z.string(), title: z.string() })) });
 const remindersSchema = z.object({ lessons: z.boolean(), evening: z.boolean(), time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/) });
-const specialWeekSchema = z.object({ id: z.string(), label: z.string().trim().min(1), from: date, to: date, lessonsApply: z.boolean() });
-const dayOffSchema = z.object({ id: z.string(), date, label: z.string().trim().min(1) });
+export const specialWeekSchema = z.object({ id: z.string(), label: z.string().trim().min(1), from: date, to: date, lessonsApply: z.boolean() }).refine(w => w.from <= w.to);
+export const dayOffSchema = z.object({ id: z.string(), date, label: z.string().trim().min(1) });
 export const studentSchema = z.object({
   version: z.literal(2), timetable: timetableSchema.nullable(), homework: z.array(homeworkSchema),
   materials: z.record(z.string(), z.array(z.string())), packing: z.record(z.string(), packSchema),
@@ -45,12 +45,14 @@ export function subjectsOf(tt: Timetable | null) {
   return [...new Set((tt?.days.flat() ?? []).map(l => l.subject.trim()).filter(Boolean))].sort();
 }
 export function nextSubjectDate(tt: Timetable | null, subject: string, today: Date, settings?: CalendarSettings): string {
-  let next = nextSchoolDay(today, settings);
-  for (let i = 0; i < 370; i++) {
+  const first = nextSchoolDay(today, settings);
+  if (!first) return "";
+  let next: Date | null = first;
+  for (let i = 0; next && i < 370; i++) {
     if (sortByTime(tt?.days[schoolDayIndex(next)] ?? []).some(l => l.subject.trim() === subject)) return dateKey(next);
     next = nextSchoolDay(next, settings);
   }
-  return dateKey(nextSchoolDay(today, settings));
+  return dateKey(first);
 }
 export type PackingItem = { id: string; title: string; subject?: string };
 export function packingItems(state: StudentData, day: Date): PackingItem[] {

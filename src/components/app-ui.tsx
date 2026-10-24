@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, BookOpen, Settings, Sun, X } from "lucide-react";
+import { CalendarDays, Calendar, BookOpen, Settings, Sun, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useApp } from "@/lib/store";
 import { exampleTimetable, subjectColor } from "@/lib/timetable";
@@ -64,12 +64,13 @@ export function TabBar() {
   const tabs = [
     { to: "/" as const, label: t.today, icon: Sun },
     { to: "/week" as const, label: t.week, icon: CalendarDays },
+    { to: "/calendar" as const, label: t.calendar, icon: Calendar },
     { to: "/homework" as const, label: t.homework, icon: BookOpen },
     { to: "/settings" as const, label: t.settings, icon: Settings },
   ];
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(env(safe-area-inset-bottom),14px)]">
-      <div className="glass-pill grid w-full max-w-xl grid-cols-4 gap-1 p-1.5">
+      <div className="glass-pill grid w-full max-w-xl grid-cols-5 gap-1 p-1.5">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
