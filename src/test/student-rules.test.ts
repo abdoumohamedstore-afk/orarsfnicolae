@@ -9,15 +9,16 @@ describe("Part 1 student rules", () => {
   it("school days are Monday through Friday only", () => {
     expect(Array.from({ length: 7 }, (_, i) => isSchoolDay(new Date(2026, 9, 19 + i)))).toEqual([true, true, true, true, true, false, false]);
   });
-  it("Friday packing targets Monday across the October clock change", () => {
-    expect(dateKey(nextSchoolDay(parseDate("2026-10-23")))).toBe("2026-10-26");
+  it("Friday packing skips autumn break across the October clock change", () => {
+    const next = nextSchoolDay(parseDate("2026-10-23"));
+    expect(next && dateKey(next)).toBe("2026-11-02");
   });
   it("defaults to 50 minute lessons, 10 minute breaks and a 20:00 packing reminder", () => {
     expect(emptyTimetable()).toMatchObject({ lessonLen: 50, breakLen: 10 });
     expect(emptyStudentData().reminders.time).toBe("20:00");
   });
   it("homework defaults to the next lesson of the chosen subject", () => {
-    expect(nextSubjectDate(exampleTimetable(), "TIC", parseDate("2026-10-22"))).toBe("2026-10-29");
+    expect(nextSubjectDate(exampleTimetable(), "TIC", parseDate("2026-10-22"))).toBe("2026-11-05");
   });
   it("deduplicates materials and includes unfinished homework and extras for the target date", () => {
     const state = emptyStudentData(); state.timetable = exampleTimetable();
@@ -37,7 +38,7 @@ describe("Part 1 student rules", () => {
     const state = emptyStudentData(); state.timetable = exampleTimetable(); state.lang = "ro";
     expect(importBackup(JSON.parse(JSON.stringify(state)))).toEqual(state);
     expect(importBackup(exampleTimetable(), state).lang).toBe("ro");
-    expect(() => importBackup({ ...state, version: 2 })).toThrow();
+    expect(() => importBackup({ ...state, version: 99 })).toThrow();
     expect(studentSchema.safeParse({ ...state, homework: [{ due: "bad" }] }).success).toBe(false);
   });
   it("fires a lesson reminder exactly five minutes before class", () => {
@@ -49,7 +50,7 @@ describe("Part 1 student rules", () => {
     const state = emptyStudentData(); state.reminders = { lessons: true, evening: true, time: "20:00" };
     expect(dueReminders(state, new Date(2026, 9, 24, 20, 0))).toEqual([]);
     expect(dueReminders(state, new Date(2026, 9, 25, 20, 0))).toEqual([]);
-    expect(dueReminders(state, new Date(2026, 9, 23, 20, 0))).toEqual([{ id: "2026-10-23:packing", kind: "packing" }]);
+    expect(dueReminders(state, new Date(2026, 9, 23, 20, 0))).toEqual([{ id: "2026-10-23:packing", kind: "packing", date: "2026-11-02" }]);
   });
   it("exports Bucharest weekly events with five minute alarms and valid midnight endings", () => {
     const tt = emptyTimetable(); tt.days[0] = [{ id: "late", subject: "Math", time: "23:30" }];
