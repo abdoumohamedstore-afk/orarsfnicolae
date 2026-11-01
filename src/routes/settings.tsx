@@ -11,6 +11,7 @@ import { emptyTimetable } from "@/lib/timetable";
 import { importBackup, settingsOf, subjectsOf } from "@/lib/student-data";
 import { playChime } from "@/lib/chime";
 import { CalendarSettingsPanel } from "@/components/calendar-settings";
+import { ShareButton } from "@/components/share-dialog";
 export const Route = createFileRoute("/settings")({ head: () => ({ meta: [
   { title: "Settings · Orar" }, { name: "description", content: "School details, materials, reminders and private device backups." },
   { property: "og:title", content: "Settings · Orar" }, { property: "og:description", content: "School details, materials, reminders and private device backups." },
@@ -45,6 +46,7 @@ function SettingsPage() {
       <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => download("orar-backup.json", JSON.stringify(state, null, 2), "application/json")}><Download />{t.backupExport}</Button>
       <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => fileRef.current?.click()}><Upload />{t.backupImport}</Button>
       <Button variant="secondary" className="h-auto w-full justify-start rounded-full py-3 whitespace-normal text-left" onClick={() => download("orar.ics", buildIcs(tt, t.reminder, new Date(), settingsOf(state)), "text/calendar")}><CalendarPlus />{t.exportIcs}</Button>
+      <ShareButton />
       <Button variant="ghost" className="h-auto w-full justify-start rounded-full py-3 text-destructive" onClick={() => setConfirm(true)}><Trash2 />{t.resetData}</Button>
     </section><p className="mt-5 text-center text-xs text-muted-foreground">{t.privacy}</p>
     <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={e => { const file = e.target.files?.[0]; if (file) void onImport(file); e.target.value = ""; }} />

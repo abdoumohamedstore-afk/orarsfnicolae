@@ -84,6 +84,7 @@ const en = {
   days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   daysShort: ["Mon", "Tue", "Wed", "Thu", "Fri"],
   swipeHint: "Swipe for the rest of the week",
+  share: "Share via QR", shareTitle: "Share timetable", shareHint: "Classmates scan this code with their phone camera.", includeHomework: "Include upcoming homework", copyLink: "Copy link", linkCopied: "Link copied", shareEmpty: "Add your timetable first", shareFound: "Shared timetable found", shareInvalid: "This share code is not valid", shareAccept: "Use this timetable", shareReplaceWarn: "Your current timetable will be replaced. Your homework is kept.", shareApplied: "Timetable imported", lessonsCount: (n: number) => `${n} lessons`, homeworkCount: (n: number) => `${n} homework/tests`,
 };
 
 const ro: typeof en = {
@@ -170,6 +171,7 @@ const ro: typeof en = {
   days: ["Luni", "Marți", "Miercuri", "Joi", "Vineri"],
   daysShort: ["Lun", "Mar", "Mie", "Joi", "Vin"],
   swipeHint: "Glisează pentru restul săptămânii",
+  share: "Partajează prin QR", shareTitle: "Partajează orarul", shareHint: "Colegii scanează codul cu camera telefonului.", includeHomework: "Include temele viitoare", copyLink: "Copiază linkul", linkCopied: "Link copiat", shareEmpty: "Adaugă mai întâi orarul", shareFound: "Orar partajat găsit", shareInvalid: "Codul de partajare nu este valid", shareAccept: "Folosește acest orar", shareReplaceWarn: "Orarul actual va fi înlocuit. Temele tale rămân.", shareApplied: "Orar importat", lessonsCount: (n) => `${n} ore`, homeworkCount: (n) => `${n} teme/teste`,
 };
 
 export const dict = { en, ro };
