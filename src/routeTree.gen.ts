@@ -14,6 +14,7 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as EditRouteImport } from './routes/edit'
 import { Route as HomeworkRouteImport } from './routes/homework'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ShareRouteImport } from './routes/share'
 import { Route as WeekRouteImport } from './routes/week'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShareRoute = ShareRouteImport.update({
+  id: '/share',
+  path: '/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WeekRoute = WeekRouteImport.update({
   id: '/week',
   path: '/week',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/edit': typeof EditRoute
   '/homework': typeof HomeworkRoute
   '/settings': typeof SettingsRoute
+  '/share': typeof ShareRoute
   '/week': typeof WeekRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/edit': typeof EditRoute
   '/homework': typeof HomeworkRoute
   '/settings': typeof SettingsRoute
+  '/share': typeof ShareRoute
   '/week': typeof WeekRoute
 }
 export interface FileRoutesById {
@@ -70,13 +78,16 @@ export interface FileRoutesById {
   '/edit': typeof EditRoute
   '/homework': typeof HomeworkRoute
   '/settings': typeof SettingsRoute
+  '/share': typeof ShareRoute
   '/week': typeof WeekRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/edit' | '/homework' | '/settings' | '/week'
+  fullPaths:
+    '/' | '/calendar' | '/edit' | '/homework' | '/settings' | '/share' | '/week'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/edit' | '/homework' | '/settings' | '/week'
+  to:
+    '/' | '/calendar' | '/edit' | '/homework' | '/settings' | '/share' | '/week'
   id:
     | '__root__'
     | '/'
@@ -84,6 +95,7 @@ export interface FileRouteTypes {
     | '/edit'
     | '/homework'
     | '/settings'
+    | '/share'
     | '/week'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +105,7 @@ export interface RootRouteChildren {
   EditRoute: typeof EditRoute
   HomeworkRoute: typeof HomeworkRoute
   SettingsRoute: typeof SettingsRoute
+  ShareRoute: typeof ShareRoute
   WeekRoute: typeof WeekRoute
 }
 
@@ -133,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/share': {
+      id: '/share'
+      path: '/share'
+      fullPath: '/share'
+      preLoaderRoute: typeof ShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/week': {
       id: '/week'
       path: '/week'
@@ -149,6 +169,7 @@ const rootRouteChildren: RootRouteChildren = {
   EditRoute: EditRoute,
   HomeworkRoute: HomeworkRoute,
   SettingsRoute: SettingsRoute,
+  ShareRoute: ShareRoute,
   WeekRoute: WeekRoute,
 }
 export const routeTree = rootRouteImport
