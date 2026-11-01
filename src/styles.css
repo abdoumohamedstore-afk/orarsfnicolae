@@ -149,11 +149,26 @@
   }
   html {
     -webkit-tap-highlight-color: transparent;
+    background-color: var(--bg-to);
+    color-scheme: light;
+    overscroll-behavior-y: none;
+  }
+  html.dark {
+    color-scheme: dark;
   }
   body {
-    @apply app-bg font-sans antialiased;
+    @apply font-sans antialiased;
+    background: linear-gradient(160deg, var(--bg-from), var(--bg-to)) var(--bg-to);
     color: var(--color-foreground);
     min-height: 100dvh;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -20vh 0;
+    z-index: -1;
+    background: linear-gradient(160deg, var(--bg-from), var(--bg-to));
+    pointer-events: none;
   }
   input[type="time"]::-webkit-calendar-picker-indicator {
     display: none;
