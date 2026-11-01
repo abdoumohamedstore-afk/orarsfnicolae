@@ -8,7 +8,7 @@ export const timetableSchema = z.object({ school: z.string(), className: z.strin
 export const homeworkSchema = z.object({ id: z.string(), type: z.enum(["homework", "test"]), subject: z.string().trim().min(1), title: z.string().trim().min(1), note: z.string(), due: date, done: z.boolean() });
 export type Homework = z.infer<typeof homeworkSchema>;
 const packSchema = z.object({ checked: z.array(z.string()), extras: z.array(z.object({ id: z.string(), title: z.string() })) });
-const remindersSchema = z.object({ lessons: z.boolean(), evening: z.boolean(), time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/) });
+const remindersSchema = z.object({ lessons: z.boolean(), evening: z.boolean(), time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/), sound: z.boolean().optional() });
 export const specialWeekSchema = z.object({ id: z.string(), label: z.string().trim().min(1), from: date, to: date, lessonsApply: z.boolean() }).refine(w => w.from <= w.to);
 export const dayOffSchema = z.object({ id: z.string(), date, label: z.string().trim().min(1) });
 export const studentSchema = z.object({

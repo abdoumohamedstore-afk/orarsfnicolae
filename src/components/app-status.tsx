@@ -4,6 +4,7 @@ import { WifiOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/lib/store";
 import { setupServiceWorker, refreshApp } from "@/lib/pwa";
+import { playChime } from "@/lib/chime";
 import { dueReminders } from "@/lib/reminders";
 import { formatSchoolDate, parseDate } from "@/lib/schedule-days";
 export function AppStatus() {
@@ -25,6 +26,7 @@ export function AppStatus() {
         seen.current.add(reminder.id);
         const body = reminder.kind === "lesson" ? `${reminder.subject ?? ""} ${text.reminder}` : `${text.bring}${reminder.date ? ` · ${formatSchoolDate(parseDate(reminder.date), current.lang)}` : ""}`;
         toast(body, { duration: 15_000 });
+        if (current.reminders.sound !== false) playChime();
         if ("Notification" in window && Notification.permission === "granted") {
           try { const registration = await navigator.serviceWorker?.getRegistration(); if (registration) await registration.showNotification("Orar", { body, tag: reminder.id, icon: "/icon-192.png" }); else new Notification("Orar", { body, tag: reminder.id }); } catch {}
         }
