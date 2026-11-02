@@ -8,7 +8,18 @@ import { newId } from "@/lib/timetable";
 
 const field = "mt-1 w-full rounded-2xl border border-input bg-secondary px-4 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring";
 
-export function CalendarSettingsPanel() {
+/** Grade band plus county break week: the two choices that decide which weeks are free. */
+export function CalendarPrefsPanel() {
+  const { t, state, update } = useApp();
+  return <div className="space-y-4">
+    <label className="block text-sm font-medium">{t.grade}<select className={field} value={state.grade} onChange={e => { const grade = e.target.value; if (grade === "V-VII" || grade === "VIII" || grade === "XII-XIII") update(s => ({ ...s, grade })); }}><option value="V-VII">V–VII / IX–XI</option><option value="VIII">VIII</option><option value="XII-XIII">XII–XIII</option></select></label>
+    <label className="block text-sm font-medium">{t.countyWeek}<select className={field} value={state.countyWeek} onChange={e => { const countyWeek = e.target.value; if (countyWeek === "unknown" || countyWeek === "A" || countyWeek === "B") update(s => ({ ...s, countyWeek })); }}><option value="unknown">{t.notSureYet}</option><option value="A">{t.weekA}</option><option value="B">{t.weekB}</option></select></label>
+    {state.countyWeek === "unknown" && <p className="text-xs text-muted-foreground">{t.countyWarning}</p>}
+  </div>;
+}
+
+/** Weeks and single days the pupil adds by hand; both change what counts as a school day. */
+export function SpecialDaysPanel() {
   const { t, state, update } = useApp();
   const [label, setLabel] = useState("");
   const [from, setFrom] = useState("");
@@ -16,12 +27,8 @@ export function CalendarSettingsPanel() {
   const [lessons, setLessons] = useState(false);
   const [offDate, setOffDate] = useState("");
   const [offLabel, setOffLabel] = useState("");
-  return <section className="mb-6 space-y-4">
-    <h2 className="text-sm font-semibold uppercase text-muted-foreground">{t.calendar} · 2026–2027</h2>
-    <label className="block text-sm font-medium">{t.grade}<select className={field} value={state.grade} onChange={e => { const grade = e.target.value; if (grade === "V-VII" || grade === "VIII" || grade === "XII-XIII") update(s => ({ ...s, grade })); }}><option value="V-VII">V–VII / IX–XI</option><option value="VIII">VIII</option><option value="XII-XIII">XII–XIII</option></select></label>
-    <label className="block text-sm font-medium">{t.countyWeek}<select className={field} value={state.countyWeek} onChange={e => { const countyWeek = e.target.value; if (countyWeek === "unknown" || countyWeek === "A" || countyWeek === "B") update(s => ({ ...s, countyWeek })); }}><option value="unknown">{t.notSureYet}</option><option value="A">{t.weekA}</option><option value="B">{t.weekB}</option></select></label>
-    {state.countyWeek === "unknown" && <p className="text-xs text-muted-foreground">{t.countyWarning}</p>}
-    <h3 className="pt-2 text-sm font-semibold">{t.specialWeeks}</h3>
+  return <div className="space-y-4">
+    <h3 className="text-sm font-semibold">{t.specialWeeks}</h3>
     <ul className="space-y-3">{state.specialWeeks.map(w => <li key={w.id} className="border-b border-border pb-3"><div className="flex items-start gap-2"><p className="min-w-0 flex-1 break-words text-sm font-medium">{w.label}<span className="mt-1 block text-xs text-muted-foreground">{w.from} – {w.to}</span></p><Button variant="ghost" size="icon" className="shrink-0 rounded-full text-destructive" aria-label={`${t.remove}: ${w.label}`} onClick={() => update(s => ({ ...s, specialWeeks: s.specialWeeks.filter(x => x.id !== w.id) }))}><Trash2 /></Button></div><label className="mt-2 flex items-center gap-3 text-xs"><input type="checkbox" role="switch" className="size-5 accent-primary" checked={w.lessonsApply} onChange={e => update(s => ({ ...s, specialWeeks: s.specialWeeks.map(x => x.id === w.id ? { ...x, lessonsApply: e.target.checked } : x) }))} />{t.lessonsApply}</label></li>)}</ul>
     <form className="space-y-3" onSubmit={e => { e.preventDefault(); const parsed = specialWeekSchema.safeParse({ id: newId(), label, from, to, lessonsApply: lessons }); if (!parsed.success) { toast.error(t.invalidCalendarDates); return; } update(s => ({ ...s, specialWeeks: [...s.specialWeeks, parsed.data] })); setLabel(""); setFrom(""); setTo(""); setLessons(false); }}>
       <label className="block text-sm">{t.title}<input required list="special-week-labels" className={field} value={label} onChange={e => setLabel(e.target.value)} /></label><datalist id="special-week-labels"><option value={t.greenWeek} /><option value={t.schoolOtherwise} /></datalist>
@@ -36,5 +43,5 @@ export function CalendarSettingsPanel() {
       <label className="block text-sm">{t.dayOffLabel}<input required className={field} value={offLabel} onChange={e => setOffLabel(e.target.value)} /></label>
       <Button type="submit" variant="secondary" className="w-full rounded-full"><Plus />{t.addDayOff}</Button>
     </form>
-  </section>;
+  </div>;
 }
