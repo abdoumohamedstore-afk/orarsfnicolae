@@ -85,6 +85,18 @@ const en = {
   daysShort: ["Mon", "Tue", "Wed", "Thu", "Fri"],
   swipeHint: "Swipe for the rest of the week",
   share: "Share via QR", shareTitle: "Share timetable", shareHint: "Classmates scan this code with their phone camera.", includeHomework: "Include upcoming homework", copyLink: "Copy link", linkCopied: "Link copied", shareEmpty: "Add your timetable first", shareFound: "Shared timetable found", shareInvalid: "This share code is not valid", shareAccept: "Use this timetable", shareReplaceWarn: "Your current timetable will be replaced. Your homework is kept.", shareApplied: "Timetable imported", lessonsCount: (n: number) => `${n} lessons`, homeworkCount: (n: number) => `${n} homework/tests`,
+  settingsHint: "Tap a card to open it.",
+  sectionSchool: "School & class",
+  sectionCalendar: "School calendar",
+  sectionSpecial: "Special weeks & days off",
+  materialsShort: "Materials",
+  remindersShort: "Reminders",
+  sectionData: "Data & sharing",
+  sectionLook: "Look & language",
+  subjectsCount: (n: number) => (n === 1 ? "1 subject" : `${n} subjects`),
+  specialAndOff: (n: number, m: number) => `${n} ${n === 1 ? "special week" : "special weeks"} · ${m} ${m === 1 ? "day off" : "days off"}`,
+  remindersOn: (n: number) => (n ? `${n} turned on` : "All off"),
+  calendarSummary: (grade: string, county: string) => `${grade} · ${county}`,
 };
 
 const ro: typeof en = {
@@ -172,6 +184,18 @@ const ro: typeof en = {
   daysShort: ["Lun", "Mar", "Mie", "Joi", "Vin"],
   swipeHint: "Glisează pentru restul săptămânii",
   share: "Partajează prin QR", shareTitle: "Partajează orarul", shareHint: "Colegii scanează codul cu camera telefonului.", includeHomework: "Include temele viitoare", copyLink: "Copiază linkul", linkCopied: "Link copiat", shareEmpty: "Adaugă mai întâi orarul", shareFound: "Orar partajat găsit", shareInvalid: "Codul de partajare nu este valid", shareAccept: "Folosește acest orar", shareReplaceWarn: "Orarul actual va fi înlocuit. Temele tale rămân.", shareApplied: "Orar importat", lessonsCount: (n) => `${n} ore`, homeworkCount: (n) => `${n} teme/teste`,
+  settingsHint: "Apasă un card ca să-l deschizi.",
+  sectionSchool: "Școală și clasă",
+  sectionCalendar: "Calendarul școlar",
+  sectionSpecial: "Săptămâni speciale și zile libere",
+  materialsShort: "Materiale",
+  remindersShort: "Mementouri",
+  sectionData: "Date și partajare",
+  sectionLook: "Aspect și limbă",
+  subjectsCount: (n) => (n === 1 ? "1 materie" : `${n} materii`),
+  specialAndOff: (n, m) => `${n} ${n === 1 ? "săptămână specială" : "săptămâni speciale"} · ${m} ${m === 1 ? "zi liberă" : "zile libere"}`,
+  remindersOn: (n) => (n ? `${n} pornite` : "Toate oprite"),
+  calendarSummary: (grade, county) => `${grade} · ${county}`,
 };
 
 export const dict = { en, ro };
