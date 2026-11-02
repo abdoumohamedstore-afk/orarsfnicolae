@@ -5,7 +5,8 @@
 - [x] Four-tab navigation, week navigation and homework dots; complete Romanian/English.
 - [x] Local Inter, offline/update indicators and safe PWA caching.
 - [x] Rule tests and end-to-end phone checks.
+- [x] Official 2026–2027 calendar engine wired into Today, Week, homework, packing, reminders and calendar export.
+- [x] Calendar settings (grade, county break week, special weeks, custom days off) and bilingual calendar interactions.
+- [x] School-calendar rule tests and phone workflows verified at 390×844.
+- [x] QR share of the timetable plus upcoming homework, with preview and accept step.
 - [ ] Verify installation, offline reload of all five pages and deployed update prompt on the published app. Blocked until the user requests publication of this update; the app-shell worker is intentionally disabled in preview.
-- [ ] Complete calendar integration in Today, Week, homework, packing, reminders and calendar export.
-- [ ] Add calendar settings and complete bilingual calendar interactions.
-- [ ] Run school-calendar rule tests and verify phone workflows.
