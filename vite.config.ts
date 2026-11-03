@@ -25,7 +25,10 @@ export default defineConfig({
         workbox: {
           skipWaiting: false,
           clientsClaim: true,
-          globPatterns: ["**/*.{js,css,png,svg,ico,webmanifest,woff2}"],
+          // Precaching is off: this stack emits the client bundle under a "client/" build
+          // folder, so generated entries would be served from "/" and the install would fail.
+          // Offline coverage comes from the runtime rules below plus the page priming in lib/pwa.ts.
+          globPatterns: [],
           navigateFallback: null,
           runtimeCaching: [
             {
