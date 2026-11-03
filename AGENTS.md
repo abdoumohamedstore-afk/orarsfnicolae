@@ -17,3 +17,4 @@
 - Use shared validated calendar-setting forms and pass the stored calendar settings to every feature and export, so personal exceptions apply consistently.
 - Keep all student data in one validated, versioned device-only store; use the same schemas for backup imports and form submissions to prevent invalid persisted records.
 - Register the generated app-shell worker only through lib/pwa.ts, refusing development and preview contexts; use NetworkFirst for navigation and local bundled fonts to keep updates safe and personal data on-device.
+- Keep worker precaching disabled and cover offline use with the runtime rules plus the page priming list in lib/pwa.ts: this stack emits the client bundle under a build subfolder, so generated precache URLs would not match the deployed paths and the worker would never activate.
