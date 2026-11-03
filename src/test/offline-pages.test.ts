@@ -15,7 +15,7 @@ function pagePaths(node: Node, found = new Set<string>()): Set<string> {
 }
 
 describe("Offline page priming", () => {
-  const pages = pagePaths(routeTree as Node);
+  const pages = pagePaths(routeTree as unknown as Node);
 
   it("finds the five tab pages plus the timetable editor", () => {
     expect([...pages].sort()).toEqual(["/", "/calendar", "/edit", "/homework", "/settings", "/week"]);

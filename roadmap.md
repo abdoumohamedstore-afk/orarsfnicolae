@@ -9,4 +9,4 @@
 - [x] Calendar settings (grade, county break week, special weeks, custom days off) and bilingual calendar interactions.
 - [x] School-calendar rule tests and phone workflows verified at 390×844.
 - [x] QR share of the timetable plus upcoming homework, with preview and accept step.
-- [ ] Verify installation, offline reload of all five pages and deployed update prompt on the published app. Blocked until the user requests publication of this update; the app-shell worker is intentionally disabled in preview.
+- [x] Offline reload of all five pages and home-screen install signals verified on the published app. The update prompt itself was not exercised: it needs two deployments inside one browsing session.
