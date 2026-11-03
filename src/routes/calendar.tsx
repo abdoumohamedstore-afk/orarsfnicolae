@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Plus, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Dot, Page, PageHeader } from "@/components/app-ui";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ const FIRST_MONTH = { y: 2026, m: 8 }; // September 2026
 const LAST_MONTH = { y: 2027, m: 5 }; // June 2027
 
 function monthStart(y: number, m: number) { return new Date(y, m, 1, 12); }
-function DayCell({ date, status, today, due, onTap, lang }: { date: Date; status: DayStatus; today: boolean; due: boolean; onTap: () => void; lang: "ro" | "en" }) {
+function DayCell({ date, status, today, due, onTap, lang, dueLabel }: { date: Date; status: DayStatus; today: boolean; due: boolean; onTap: () => void; lang: "ro" | "en"; dueLabel: string }) {
   const colored = status.type !== "school" && status.type !== "weekend";
   return (
     <Button variant="ghost"
@@ -33,11 +33,12 @@ function DayCell({ date, status, today, due, onTap, lang }: { date: Date; status
         background: colored ? `color-mix(in oklab, ${status.color} 28%, transparent)` : status.type === "school" ? "color-mix(in oklab, var(--cal-school) 18%, transparent)" : undefined,
         borderColor: status.dashed ? status.color : undefined,
       }}
-      aria-label={`${formatSchoolDate(date, lang)} · ${status.label}`}
+      aria-label={[formatSchoolDate(date, lang), status.label, status.badge, due ? dueLabel : ""].filter(Boolean).join(" · ")}
+      aria-current={today ? "date" : undefined}
     >
-      <span className={`font-semibold ${status.type === "weekend" ? "text-muted-foreground" : ""}`}>{date.getDate()}</span>
-      {status.badge && <span className="mt-0.5 block size-1.5 rounded-full" style={{ background: "var(--cal-marker)" }} />}
-      {due && <span className="absolute bottom-1 block size-1.5 rounded-full bg-destructive" />}
+      <span className={`text-[13px] ${today ? "font-extrabold underline underline-offset-2" : "font-semibold"} ${status.type === "weekend" ? "text-muted-foreground" : ""}`}>{date.getDate()}</span>
+      {status.badge && <Star aria-hidden className="!size-2.5 fill-current" style={{ color: "var(--cal-marker)" }} />}
+      {due && <BookOpen aria-hidden className="absolute bottom-1 !size-2.5 text-destructive" />}
     </Button>
   );
 }
@@ -61,7 +62,7 @@ function CalendarPage() {
   const offset = (first.getDay() + 6) % 7; // Monday-first
   const daysInMonth = new Date(month.y, month.m + 1, 0).getDate();
   const cells: (Date | null)[] = [...Array<null>(offset).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => new Date(month.y, month.m, i + 1, 12))];
-  const monthFmt = new Intl.DateTimeFormat(lang === "ro" ? "ro-RO" : "en-GB", { month: "long", year: "numeric" });
+  const monthFmt = new Intl.DateTimeFormat(t.locale, { month: "long", year: "numeric" });
   const canPrev = month.y > FIRST_MONTH.y || (month.y === FIRST_MONTH.y && month.m > FIRST_MONTH.m);
   const canNext = month.y < LAST_MONTH.y || (month.y === LAST_MONTH.y && month.m < LAST_MONTH.m);
   const shift = (d: number) => setMonth((cur) => { if (!cur) return cur; const n = monthStart(cur.y, cur.m + d); if (n < monthStart(FIRST_MONTH.y, FIRST_MONTH.m) || n > monthStart(LAST_MONTH.y, LAST_MONTH.m)) return cur; return { y: n.getFullYear(), m: n.getMonth() }; });
@@ -104,8 +105,8 @@ function CalendarPage() {
           <p className="text-sm font-bold capitalize">{monthFmt.format(first)}</p>
           <Button variant="ghost" size="icon" className="rounded-full" disabled={!canNext} onClick={() => shift(1)} aria-label={t.nextMonth}><ChevronRight /></Button>
         </div>
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-muted-foreground">
-          {["L", "M", "M", "J", "V", "S", "D"].map((d, i) => <span key={i}>{lang === "ro" ? d : ["M", "T", "W", "T", "F", "S", "S"][i]}</span>)}
+        <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-muted-foreground" role="row">
+          {t.daysShort.map((d, i) => <abbr key={i} role="columnheader" title={t.days[i]} aria-label={t.days[i]} className="no-underline">{d}</abbr>)}
         </div>
         <div className="mt-1 grid grid-cols-7 gap-1">
           {cells.map((date, i) => date ? (
@@ -116,11 +117,12 @@ function CalendarPage() {
               status={getDayStatus(date, settings)}
               today={dateKey(date) === todayKey}
               due={state.homework.some((h) => !h.done && h.due === dateKey(date))}
+              dueLabel={t.dueMark}
               onTap={() => setSelected(dateKey(date))}
             />
           ) : <span key={i} />)}
         </div>
-        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 px-1 text-[10px] text-muted-foreground">
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 px-1 type-caption text-foreground">
           {[
             ["var(--cal-school)", t.legendSchool],
             ["var(--cal-vacation)", t.legendVacation],
@@ -128,18 +130,19 @@ function CalendarPage() {
             ["var(--cal-holiday)", t.legendHoliday],
             ["var(--cal-marker)", t.legendLastDay],
           ].map(([color, label]) => (
-            <span key={label} className="flex items-center gap-1.5"><span className="size-2 rounded-full" style={{ background: color }} />{label}</span>
+            <span key={label} className="flex items-center gap-1.5">{color === "var(--cal-marker)" ? <Star aria-hidden className="size-3 fill-current" style={{ color }} /> : <span className="size-3 rounded-sm border border-foreground/30" style={{ background: color }} />}{label}</span>
           ))}
+          <span className="flex items-center gap-1.5"><BookOpen aria-hidden className="size-3 text-destructive" />{t.dueMark}</span>
         </div>
       </div>
 
-      <h2 className="mb-3 mt-6 px-1 text-lg font-semibold">{t.upcomingBreaks}</h2>
+      <h2 className="mb-3 mt-6 px-1 type-section">{t.upcomingBreaks}</h2>
       <ul className="space-y-2">
         {upcoming.map((b, i) => (
           <li key={i} className="glass flex items-center gap-3 !rounded-2xl px-4 py-3">
             <span className="size-2.5 shrink-0 rounded-full" style={{ background: getDayStatus(b.date, settings).color }} />
             <span className="min-w-0 flex-1 break-words text-sm font-semibold">{b.label}</span>
-            <span className="shrink-0 text-xs text-muted-foreground">{new Intl.DateTimeFormat(lang === "ro" ? "ro-RO" : "en-GB", { day: "numeric", month: "short" }).format(b.date)} · {t.inDays(daysUntil(b.date))}</span>
+            <span className="shrink-0 text-xs text-muted-foreground">{new Intl.DateTimeFormat(t.locale, { day: "numeric", month: "short" }).format(b.date)} · {t.inDays(daysUntil(b.date))}</span>
           </li>
         ))}
         {!upcoming.length && <p className="px-1 text-sm text-muted-foreground">{t.noBreaks}</p>}

@@ -18,7 +18,7 @@ export function PageHeader({ title, right }: { title: string; right?: ReactNode 
   const { t } = useApp();
   return (
     <header className="flex items-center justify-between pb-4 pt-2">
-      <h1 className="text-[34px] font-bold leading-tight ">{title}</h1>
+      <h1 className="type-title">{title}</h1>
       {right ?? (
         <Link
           to="/settings"
@@ -76,7 +76,7 @@ export function TabBar() {
             key={to}
             to={to}
             activeOptions={{ exact: true }}
-            className="flex min-w-0 flex-col items-center gap-1 rounded-full px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all"
+            className="flex min-w-0 flex-col items-center gap-1 rounded-full px-1 py-2 text-[11px] font-semibold min-h-11 text-muted-foreground transition-all"
             activeProps={{ className: "bg-primary !text-primary-foreground shadow-md" }}
           >
             <Icon className="size-4" />
