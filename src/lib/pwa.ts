@@ -1,4 +1,6 @@
 // The only app-shell SW registrar. Preview/dev never register this worker.
+/** Every content page primed for offline use; keep in step with the tab bar and routes. */
+export const OFFLINE_PAGES = ["/", "/week", "/calendar", "/homework", "/settings", "/edit"];
 let registration: ServiceWorkerRegistration | undefined;
 async function prepareOfflinePages(callbacks?: { onReady: () => void }) {
   try {
