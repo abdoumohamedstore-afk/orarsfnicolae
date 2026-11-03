@@ -1,4 +1,6 @@
 // The only app-shell SW registrar. Preview/dev never register this worker.
+/** Every content page primed for offline use; keep in step with the tab bar and routes. */
+export const OFFLINE_PAGES = ["/", "/week", "/calendar", "/homework", "/settings", "/edit"];
 let registration: ServiceWorkerRegistration | undefined;
 async function prepareOfflinePages(callbacks?: { onReady: () => void }) {
   try {
@@ -7,7 +9,7 @@ async function prepareOfflinePages(callbacks?: { onReady: () => void }) {
       await new Promise<void>(resolve => navigator.serviceWorker.addEventListener("controllerchange", () => resolve(), { once: true }));
     }
     // Prime every content page through the generated worker's NetworkFirst rule.
-    const pages = await Promise.all(["/", "/week", "/homework", "/settings", "/edit"].map(path => fetch(path, { headers: { Accept: "text/html" } })));
+    const pages = await Promise.all(OFFLINE_PAGES.map(path => fetch(path, { headers: { Accept: "text/html" } })));
     if (pages.every(page => page.ok)) callbacks?.onReady();
   } catch { /* Do not claim offline readiness if a page could not be cached. */ }
 }
