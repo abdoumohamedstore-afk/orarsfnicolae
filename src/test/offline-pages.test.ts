@@ -3,20 +3,22 @@ import { describe, expect, it } from "vitest";
 import { routeTree } from "@/routeTree.gen";
 import { OFFLINE_PAGES } from "@/lib/pwa";
 
-/** Collect every page path the router can match, skipping the root layout and the
- *  one-time QR accept page, which is only useful while online. */
-function pagePaths(node: typeof routeTree, found = new Set<string>()): Set<string> {
-  if (node.path && node.path !== "/" && !node.path.startsWith("/share")) found.add(node.path);
-  for (const child of Object.values(node.children ?? {})) pagePaths(child as typeof routeTree, found);
+type Node = { options?: { path?: string }; children?: Node[] };
+
+/** Collect every page path the router can match, skipping the one-time QR accept
+ *  page, which is only useful while online. */
+function pagePaths(node: Node, found = new Set<string>()): Set<string> {
+  const path = node.options?.path;
+  if (path && !path.startsWith("/share")) found.add(path);
+  for (const child of node.children ?? []) pagePaths(child, found);
   return found;
 }
 
 describe("Offline page priming", () => {
-  const pages = pagePaths(routeTree);
+  const pages = pagePaths(routeTree as Node);
 
   it("finds the five tab pages plus the timetable editor", () => {
-    expect(pages.size).toBe(6);
-    expect([...pages].sort()).toEqual(["/calendar", "/edit", "/homework", "/settings", "/week", "/"]);
+    expect([...pages].sort()).toEqual(["/", "/calendar", "/edit", "/homework", "/settings", "/week"]);
   });
 
   it("primes every content page for offline use", () => {
