@@ -37,9 +37,9 @@ export function encodeShare(state: StudentData, today: string, opts: ShareOption
     v: 1, l: tt.lessonLen, b: tt.breakLen,
     d: tt.days.map(day => sortByTime(day).filter(l => l.subject.trim()).map(l => [l.time, l.subject.trim()])),
   };
-  if (opts.school && tt.school.trim()) payload.s = tt.school.trim();
-  if (opts.className && tt.className.trim()) payload.c = tt.className.trim();
-  if (opts.homework) payload.h = state.homework.filter(h => !h.done && h.due >= today).slice(0, 40).map(h => [h.type, h.subject, h.title, h.due]);
+  if (opts.school && tt.school.trim()) payload["s"] = tt.school.trim();
+  if (opts.className && tt.className.trim()) payload["c"] = tt.className.trim();
+  if (opts.homework) payload["h"] = state.homework.filter(h => !h.done && h.due >= today).slice(0, 40).map(h => [h.type, h.subject, h.title, h.due]);
   return b64urlEncode(JSON.stringify(payload));
 }
 
