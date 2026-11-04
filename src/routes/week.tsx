@@ -13,7 +13,7 @@ export const Route = createFileRoute("/week")({ head: () => ({ meta: [
   { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
 ] }), component: Week });
 function Week() {
-  const { t, lang, data, state, ready } = useApp(); const [base, setBase] = useState<Date | null>(null); const [offset, setOffset] = useState(0); const touch = useRef<{ x: number; y: number } | null>(null);
+  const { t, data, state, ready } = useApp(); const [base, setBase] = useState<Date | null>(null); const [offset, setOffset] = useState(0); const touch = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => setBase(new Date()), []);
   if (!ready || !base) return <Page><PageHeader title={t.week} /></Page>;
   if (!data || isEmpty(data)) return <Page><PageHeader title={t.week} /><EmptyState /></Page>;
