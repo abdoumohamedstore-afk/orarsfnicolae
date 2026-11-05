@@ -46,7 +46,8 @@ describe("QR share", () => {
     const merged = applyShare(mine, p, "merge").timetable!;
     expect(merged.className).toBe("Mine");
     expect(merged.days[0]?.length).toBe((exampleTimetable().days[0]?.length ?? 0) + 1);
-    expect(applyShare(merged as never, p, "merge").timetable).toBeTruthy();
+    const again = applyShare({ ...mine, timetable: merged }, p, "merge").timetable!;
+    expect(again.days[0]?.length).toBe(merged.days[0]?.length);
   });
   it("does not duplicate homework the receiver already has", () => {
     const p = decodeShare(encodeShare(base(), "2026-11-01", all))!;
