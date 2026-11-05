@@ -1,3 +1,4 @@
+import type React from "react";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { dict, type Dict, type Lang } from "./i18n";
 import type { Timetable } from "./timetable";
@@ -11,7 +12,8 @@ type Ctx = {
   replace: (s: StudentData) => void; reset: () => void; storageError: boolean;
   lang: Lang; setLang: (l: Lang) => void; theme: ThemePref; setTheme: (t: ThemePref) => void; t: Dict; accent: Accent; setAccent: (a: Accent) => void;
 };
-const AppCtx = createContext<Ctx | null>(null);
+const g = globalThis as { __orarCtx?: React.Context<Ctx | null> };
+const AppCtx = g.__orarCtx ?? (g.__orarCtx = createContext<Ctx | null>(null));
 export const STORAGE_KEY = "orar.student.v1";
 export function AppProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
