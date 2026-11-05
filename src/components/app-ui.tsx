@@ -76,8 +76,8 @@ export function TabBar() {
             key={to}
             to={to}
             activeOptions={{ exact: true }}
-            className="flex min-w-0 flex-col items-center gap-1 rounded-full px-1 py-2 text-[11px] font-semibold min-h-11 text-muted-foreground transition-all"
-            activeProps={{ className: "bg-primary !text-primary-foreground shadow-md" }}
+            className="flex min-w-0 flex-col items-center gap-1 rounded-2xl border border-transparent px-1 py-2 text-[11px] font-semibold min-h-11 text-muted-foreground transition-all"
+            activeProps={{ className: "glass-active !text-foreground" }}
           >
             <Icon className="size-4" />
             {label}

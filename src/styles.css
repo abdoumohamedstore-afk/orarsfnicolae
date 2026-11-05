@@ -46,19 +46,20 @@
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.62 0.2 255);
+  --ah: 255; --ac: 0.2; --al: 0.62;
+  --primary: oklch(var(--al) var(--ac) var(--ah));
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(1 0 0 / 55%);
   --secondary-foreground: var(--foreground);
   --muted: oklch(0.2 0.02 270 / 6%);
   --muted-foreground: oklch(0.44 0.02 270);
-  --accent: oklch(0.62 0.2 255 / 12%);
-  --accent-foreground: oklch(0.5 0.2 255);
+  --accent: oklch(var(--al) var(--ac) var(--ah) / 12%);
+  --accent-foreground: oklch(calc(var(--al) - 0.12) var(--ac) var(--ah));
   --destructive: oklch(0.55 0.21 25);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.2 0.02 270 / 8%);
   --input: oklch(0.2 0.02 270 / 10%);
-  --ring: oklch(0.62 0.2 255);
+  --ring: var(--primary);
   --glass: oklch(1 0 0 / 70%);
   --glass-strong: oklch(1 0 0 / 85%);
   --glass-border: oklch(1 0 0 / 90%);
@@ -90,12 +91,12 @@
   --card: oklch(1 0 0 / 12%);
   --popover: oklch(0.24 0.01 285);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.64 0.2 255);
+  --primary: oklch(calc(var(--al) + 0.02) var(--ac) var(--ah));
   --secondary: oklch(1 0 0 / 10%);
   --muted: oklch(1 0 0 / 7%);
   --muted-foreground: oklch(0.8 0.01 285);
-  --accent: oklch(0.64 0.2 255 / 22%);
-  --accent-foreground: oklch(0.78 0.14 255);
+  --accent: oklch(calc(var(--al) + 0.02) var(--ac) var(--ah) / 22%);
+  --accent-foreground: oklch(0.8 calc(var(--ac) * 0.7) var(--ah));
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 14%);
   --glass: oklch(1 0 0 / 12%);
@@ -105,6 +106,28 @@
 
   --cal-school: #b3952f;
   --cal-weekend: oklch(1 0 0 / 14%);
+}
+
+html[data-accent="gray"] { --ah: 260; --ac: 0.015; --al: 0.52; }
+html[data-accent="sage"] { --ah: 150; --ac: 0.06; --al: 0.58; }
+html[data-accent="lavender"] { --ah: 295; --ac: 0.08; --al: 0.6; }
+html[data-accent="rose"] { --ah: 15; --ac: 0.08; --al: 0.62; }
+html[data-accent="sand"] { --ah: 65; --ac: 0.07; --al: 0.62; }
+
+@utility glass-tile {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-radius: 0.875rem;
+}
+
+@utility glass-active {
+  background: color-mix(in oklab, var(--primary) 30%, var(--glass));
+  border: 1px solid color-mix(in oklab, var(--primary) 45%, var(--glass-border));
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--glass-shadow);
+  border-radius: 1rem;
+  color: var(--foreground);
 }
 
 @utility glass {
@@ -189,3 +212,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+.accent-swatch[data-accent="blue"] { --ah: 255; --ac: 0.2; --al: 0.62; }
+.accent-swatch[data-accent="gray"] { --ah: 260; --ac: 0.015; --al: 0.52; }
+.accent-swatch[data-accent="sage"] { --ah: 150; --ac: 0.06; --al: 0.58; }
+.accent-swatch[data-accent="lavender"] { --ah: 295; --ac: 0.08; --al: 0.6; }
+.accent-swatch[data-accent="rose"] { --ah: 15; --ac: 0.08; --al: 0.62; }
+.accent-swatch[data-accent="sand"] { --ah: 65; --ac: 0.07; --al: 0.62; }
