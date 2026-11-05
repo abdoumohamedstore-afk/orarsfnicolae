@@ -8,5 +8,5 @@
 - [x] Official 2026–2027 calendar engine wired into Today, Week, homework, packing, reminders and calendar export.
 - [x] Calendar settings (grade, county break week, special weeks, custom days off) and bilingual calendar interactions.
 - [x] School-calendar rule tests and phone workflows verified at 390×844.
-- [x] QR share of the timetable plus upcoming homework, with preview and accept step.
+- [x] QR share of the timetable plus upcoming homework, with field preview, size guard, merge/replace choice, recovery snapshot and undo; full export-to-import round trip verified on phone.
 - [x] Offline reload of all five pages and home-screen install signals verified on the published app. The update prompt itself was not exercised: it needs two deployments inside one browsing session.
