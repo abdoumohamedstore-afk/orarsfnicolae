@@ -19,7 +19,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [storageError, setStorageError] = useState(false);
   const [accent, setAccentState] = useState<Accent>("blue");
   useEffect(() => { try { const a = localStorage.getItem("orar.accent"); if (a && (ACCENTS as readonly string[]).includes(a)) setAccentState(a as Accent); } catch { /* ignore */ } }, []);
-  useEffect(() => { if (accent === "blue") delete document.documentElement.dataset.accent; else document.documentElement.dataset.accent = accent; }, [accent]);
+  useEffect(() => { if (accent === "blue") delete document.documentElement.dataset["accent"]; else document.documentElement.dataset["accent"] = accent; }, [accent]);
   useEffect(() => {
     const base = emptyStudentData();
     base.lang = navigator.language.toLowerCase().startsWith("ro") ? "ro" : "en";
