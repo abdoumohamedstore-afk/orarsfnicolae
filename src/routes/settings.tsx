@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { buildIcs, download } from "@/lib/ics";
-import { useApp, type ThemePref } from "@/lib/store";
+import { useApp, ACCENTS, type ThemePref } from "@/lib/store";
 import { emptyTimetable } from "@/lib/timetable";
 import { importBackup, settingsOf, subjectsOf } from "@/lib/student-data";
 import { playChime } from "@/lib/chime";
@@ -38,7 +38,7 @@ function Section({ value, icon: Icon, title, summary, children }: { value: strin
   </AccordionItem>;
 }
 function SettingsPage() {
-  const { t, lang, setLang, theme, setTheme, data, state, update, replace, reset, ready } = useApp(); const fileRef = useRef<HTMLInputElement>(null); const [confirm, setConfirm] = useState(false);
+  const { t, lang, setLang, theme, setTheme, accent, setAccent, data, state, update, replace, reset, ready } = useApp(); const fileRef = useRef<HTMLInputElement>(null); const [confirm, setConfirm] = useState(false);
   const tt = data ?? emptyTimetable(); const subjects = subjectsOf(data);
   const onCount = [state.reminders.lessons, state.reminders.evening, state.reminders.sound !== false].filter(Boolean).length;
   const notificationToggle = async (kind: "lessons" | "evening", enabled: boolean) => {
@@ -83,6 +83,10 @@ function SettingsPage() {
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-medium">{t.language}</span><Segmented value={lang} onChange={setLang} options={[{ v: "ro", l: "RO" }, { v: "en", l: "EN" }]} /></div>
           <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-medium">{t.appearance}</span><Segmented<ThemePref> value={theme} onChange={setTheme} options={[{ v: "auto", l: t.auto }, { v: "light", l: t.light }, { v: "dark", l: t.dark }]} /></div>
+          <div><span className="text-sm font-medium">{t.colorTheme}</span>
+            <div role="radiogroup" aria-label={t.colorTheme} className="mt-2 grid grid-cols-6 gap-2">{ACCENTS.map(a => <button key={a} type="button" role="radio" aria-checked={accent === a} aria-label={t.accentNames[a]} title={t.accentNames[a]} onClick={() => setAccent(a)} data-accent={a} className={`accent-swatch grid min-h-11 place-items-center rounded-xl border-2 ${accent === a ? "border-foreground" : "border-transparent"}`}><span className="block size-7 rounded-lg" style={{ background: "oklch(var(--al) var(--ac) var(--ah))" }} /></button>)}</div>
+            <p className="mt-1 text-xs text-muted-foreground">{t.accentNames[accent]}</p>
+          </div>
         </div>
       </Section>
     </Accordion>
