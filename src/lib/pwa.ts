@@ -38,6 +38,10 @@ export async function setupServiceWorker(callbacks?: { onReady: () => void; onUp
         if (worker.state === "installed" && navigator.serviceWorker.controller) callbacks?.onUpdate();
       });
     });
+    // Detect versions deployed while the app stays open, not just on load.
+    const poll = () => void registration?.update().catch(() => {});
+    setInterval(poll, 60_000);
+    document.addEventListener("visibilitychange", poll);
     void prepareOfflinePages(callbacks);
   } catch { /* No offline-ready claim if registration fails. */ }
 }
