@@ -104,12 +104,29 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function ThemeColorSync() {
+  const { accent, theme } = useApp();
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    const probe = document.createElement("span");
+    probe.style.color = "var(--primary)";
+    probe.style.display = "none";
+    document.body.appendChild(probe);
+    const color = getComputedStyle(probe).color;
+    document.body.removeChild(probe);
+    if (color) meta.setAttribute("content", color);
+  }, [accent, theme]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
+        <ThemeColorSync />
         <AppStatus />
         <Outlet />
         <TabBar />

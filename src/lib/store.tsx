@@ -21,7 +21,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [storageError, setStorageError] = useState(false);
   const [accent, setAccentState] = useState<Accent>("blue");
   useEffect(() => { try { const a = localStorage.getItem("orar.accent"); if (a && (ACCENTS as readonly string[]).includes(a)) setAccentState(a as Accent); } catch { /* ignore */ } }, []);
-  useEffect(() => { if (accent === "blue") delete document.documentElement.dataset["accent"]; else document.documentElement.dataset["accent"] = accent; }, [accent]);
+  // Applied during render (not in an effect) so child effects that read the
+  // accent CSS variables — e.g. the theme-color sync — see the new value.
+  if (typeof document !== "undefined") {
+    if (accent === "blue") delete document.documentElement.dataset["accent"];
+    else document.documentElement.dataset["accent"] = accent;
+  }
   useEffect(() => {
     const base = emptyStudentData();
     base.lang = navigator.language.toLowerCase().startsWith("ro") ? "ro" : "en";
