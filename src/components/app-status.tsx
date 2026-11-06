@@ -36,5 +36,33 @@ export function AppStatus() {
     return () => { clearInterval(timer); document.removeEventListener("visibilitychange", check); };
   }, [ready]);
   if (!offline && !update && !storageError) return null;
-  return <aside className="sticky top-0 z-40 bg-background px-4 py-2 text-center text-xs">{offline && <p className="flex items-center justify-center gap-2"><WifiOff className="size-4" />{t.offline}</p>}{storageError && <p className="text-destructive">{t.storageError}</p>}{update && <Button variant="ghost" className="h-auto whitespace-normal text-xs text-primary" onClick={() => void refreshApp()}><RefreshCw />{t.updateAvailable}</Button>}</aside>;
+  return (
+    <>
+      {(offline || storageError) && (
+        <aside className="sticky top-0 z-40 bg-background px-4 py-2 text-center text-xs">
+          {offline && <p className="flex items-center justify-center gap-2"><WifiOff className="size-4" />{t.offline}</p>}
+          {storageError && <p className="text-destructive">{t.storageError}</p>}
+        </aside>
+      )}
+      {update && (
+        <div className="fixed inset-x-0 bottom-24 z-50 flex justify-center px-4 fade-up" role="status">
+          <div className="glass flex w-full max-w-md items-center gap-3 bg-glass-strong p-4">
+            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground">
+              <RefreshCw className="size-5" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold">{t.updateAvailable}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{t.updateBody}</p>
+            </div>
+            <Button
+              onClick={() => void refreshApp()}
+              className="min-h-11 shrink-0 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
+            >
+              {t.reloadNow}
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
